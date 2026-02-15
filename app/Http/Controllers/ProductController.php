@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductReview;
 use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -162,6 +163,82 @@ class ProductController extends Controller
         });
 
         return response()->json($relatedProducts);
+    }
+    public function canReview(Product $product)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['can_review' => false]);
+        }
+
+        $orderItem = \App\Models\OrderItem::where('product_id', $product->id)
+            ->whereHas('order', function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                ->where('status', 'completed');
+            })
+            ->whereDoesntHave('review')
+            ->first();
+
+        return response()->json([
+            'can_review' => (bool) $orderItem,
+            'order_item_id' => $orderItem?->id
+        ]);
+    }
+    public function reviews(Product $product)
+    {
+        $reviews = $product->reviews()
+            ->with('user:id,name')
+            ->latest()
+            ->get()
+            ->map(function ($review) {
+                return [
+                    'id' => $review->id,
+                    'user' => $review->user->name,
+                    'rating' => $review->rating,
+                    'comment' => $review->content,
+                    'date' => $review->created_at->format('d/m/Y'),
+                ];
+            });
+
+        return response()->json($reviews);
+    }
+    public function storeReview(Request $request)
+    {
+        $request->validate([
+            'order_item_id' => 'required|exists:order_items,id',
+            'product_id' => 'required|exists:products,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'content' => 'required|string'
+        ]);
+
+        ProductReview::create([
+            'order_item_id' => $request->order_item_id,
+            'user_id' => Auth::id(),
+            'product_id' => $request->product_id,
+            'rating' => $request->rating,
+            'content' => $request->content
+        ]);
+
+        // 🔥 TÍNH LẠI AVG
+        $product = Product::findOrFail($request->product_id);
+
+        $avgRating = ProductReview::where('product_id', $product->id)
+            ->avg('rating');
+
+        $totalReviews = ProductReview::where('product_id', $product->id)
+            ->count();
+
+        $product->update([
+            'avg_rating' => round($avgRating, 2),
+            'total_reviews' => $totalReviews
+        ]);
+
+        // ✅ QUAN TRỌNG: return dữ liệu mới
+        return response()->json([
+            'avg_rating' => round($avgRating, 2),
+            'total_reviews' => $totalReviews
+        ]);
     }
 
 }

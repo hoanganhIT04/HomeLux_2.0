@@ -243,6 +243,17 @@ Route::middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Reviews Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/products/{product}/can-review', [ProductController::class, 'canReview'])
+    ->middleware('auth');
+Route::get('/products/{product}/reviews', [ProductController::class, 'reviews']);
+Route::post('/reviews', [ProductController::class, 'storeReview'])
+    ->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
 | Logout
 |--------------------------------------------------------------------------
 */

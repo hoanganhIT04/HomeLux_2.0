@@ -9,13 +9,9 @@ const relatedProducts = ref([])
 const props = defineProps({
   product: Object
 })
+const product = ref({ ...props.product })
 
 const qty = ref(1)
-
-onMounted(async () => {
-  const res = await axios.get(`/products/${props.product.id}/related`)
-  relatedProducts.value = res.data
-})
 
 // đảm bảo không vượt min / max kể cả khi user gõ tay
 watch(qty, (val) => {
@@ -120,46 +116,13 @@ const handleAddRelatedToCart = async (product) => {
 }
 
 // script demo cho review
-const reviews = ref([
-  // sau này thay bằng API
-  {
-    id: 1,
-    user: 'Jacky Chan',
-    avatar: '/assets/img/avatar-1.jpg',
-    rating: 5,
-    comment: 'Thank you, very fast shipping from Poland only 3days.',
-    date: 'December 4, 2022'
-  },
-  {
-    id: 1,
-    user: 'Jacky Chan',
-    avatar: '/assets/img/avatar-1.jpg',
-    rating: 3,
-    comment: 'Thank you, very fast shipping from Poland only 3days.',
-    date: 'December 4, 2022'
-  },
-  {
-    id: 1,
-    user: 'Jacky Chan',
-    avatar: '/assets/img/avatar-1.jpg',
-    rating: 5,
-    comment: 'Thank you, very fast shipping from Poland only 3days.',
-    date: 'December 4, 2022'
-  },
-  {
-    id: 2,
-    user: 'Anna Lee',
-    avatar: '/assets/img/avatar-1.jpg',
-    rating: 4,
-    comment: 'Good product, will buy again.',
-    date: 'December 10, 2022'
-  },
-  // thêm nhiều review để test
-])
+const canReview = ref(false)
+const orderItemId = ref(null)
+const reviews = ref([])
 const activeTab = ref('form') 
 const currentPage = ref(1)
 const perPage = 3
-
+const reviewContent = ref('')
 const totalPages = computed(() =>
   Math.ceil(reviews.value.length / perPage)
 )
@@ -172,6 +135,62 @@ const paginatedReviews = computed(() => {
 const changePage = (page) => {
   if (page < 1 || page > totalPages.value) return
   currentPage.value = page
+}
+onMounted(async () => {
+  try {
+    // related
+    const related = await axios.get(`/products/${props.product.id}/related`)
+    relatedProducts.value = related.data
+
+    // can review
+    const can = await axios.get(`/products/${props.product.id}/can-review`)
+    canReview.value = can.data.can_review
+    orderItemId.value = can.data.order_item_id
+
+    // reviews
+    const reviewRes = await axios.get(`/products/${props.product.id}/reviews`)
+    reviews.value = reviewRes.data
+
+  } catch (err) {
+    console.error(err)
+  }
+})
+const submitReview = async () => {
+  if (!canReview.value) return
+  if (!selectedRating.value) return alert('Chọn số sao')
+  if (!reviewContent.value.trim()) return alert('Nhập nội dung')
+
+  try {
+    const res = await axios.post('/reviews', {
+      order_item_id: orderItemId.value,
+      product_id: product.value.id, // ✅ dùng product reactive
+      rating: selectedRating.value,
+      content: reviewContent.value
+    })
+
+    // ✅ UPDATE RATING NGAY LẬP TỨC
+    product.value.avg_rating = res.data.avg_rating
+    product.value.total_reviews = res.data.total_reviews
+
+    // ✅ PUSH REVIEW MỚI LÊN ĐẦU (không cần reload)
+    reviews.value.unshift({
+      id: Date.now(),
+      user: 'Bạn',
+      rating: selectedRating.value,
+      comment: reviewContent.value,
+      date: new Date().toLocaleDateString('vi-VN')
+    })
+
+    alert('Đánh giá thành công')
+
+    reviewContent.value = ''
+    selectedRating.value = 0
+    canReview.value = false
+    activeTab.value = 'list'
+
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 //demo ratting
@@ -364,10 +383,16 @@ const resetHover = () => {
             <textarea
               class="form__input textarea"
               placeholder="Viết nhận xét"
+              v-model="reviewContent"
             ></textarea>
 
+
             <div class="form__btn">
-              <button class="review-submit-btn">
+              <button 
+                class="review-submit-btn"
+                :disabled="!canReview"
+                @click.prevent="submitReview"
+              >
                 Gửi đánh giá
               </button>
             </div>
@@ -417,14 +442,17 @@ const resetHover = () => {
           </div>
 
           <!-- PAGINATION -->
-          <div class="review__pagination">
+          <div 
+            v-if="totalPages > 1"
+            class="review__pagination"
+          >
 
             <button 
               class="review-page-btn"
               @click="changePage(currentPage - 1)"
               :disabled="currentPage === 1"
             >
-              ←
+              <<
             </button>
 
             <button
@@ -442,12 +470,11 @@ const resetHover = () => {
               @click="changePage(currentPage + 1)"
               :disabled="currentPage === totalPages"
             >
-              →
+              >>
             </button>
 
           </div>
         </div>
-
       </section>
 
 
