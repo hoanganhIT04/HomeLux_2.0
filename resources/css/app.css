@@ -1697,3 +1697,11 @@ select:disabled {
     50% { transform: scale(1.05); }
     100% { transform: scale(1.03); }
 }
+
+/* style cho card ví momo footer */
+.payment__img {
+    width: 50%;
+    height: auto;
+    display: block;
+    margin-top: 10px;
+}

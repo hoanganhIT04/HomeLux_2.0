@@ -219,8 +219,10 @@ onUnmounted(() => {
                 </div>
                 <div class="footer__content">
                     <h3 class="footer__title">Cổng thanh toán an toàn</h3>
-                    <!-- <img src="/assets/img/payment-method.png" alt="" class="payment__img" /> -->
-                    <img src="/assets/img/momo.png" alt="" class="w-[224px] h-[80px] object-contain" />
+
+                    <a href="https://www.momo.vn/" target="_blank">
+                        <img src="/assets/img/momo.png" alt="MoMo Payment" class="payment__img" />
+                    </a>
                 </div>
             </div>
             <div class="footer__bottom">
