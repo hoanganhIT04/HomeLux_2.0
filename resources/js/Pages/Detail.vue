@@ -142,19 +142,25 @@ onMounted(async () => {
     const related = await axios.get(`/products/${props.product.id}/related`)
     relatedProducts.value = related.data
 
-    // can review
-    const can = await axios.get(`/products/${props.product.id}/can-review`)
-    canReview.value = can.data.can_review
-    orderItemId.value = can.data.order_item_id
-
-    // reviews
+    // reviews (AI CŨNG XEM ĐƯỢC)
     const reviewRes = await axios.get(`/products/${props.product.id}/reviews`)
     reviews.value = reviewRes.data
 
   } catch (err) {
     console.error(err)
   }
+
+  // 🔥 can-review riêng, cho phép fail 401
+  try {
+    const can = await axios.get(`/products/${props.product.id}/can-review`)
+    canReview.value = can.data.can_review
+    orderItemId.value = can.data.order_item_id
+  } catch (err) {
+    // nếu 401 thì bỏ qua, không cần log
+    canReview.value = false
+  }
 })
+
 const submitReview = async () => {
   if (!canReview.value) return
   if (!selectedRating.value) return alert('Chọn số sao')
