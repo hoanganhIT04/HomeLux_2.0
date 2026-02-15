@@ -248,7 +248,9 @@ Route::middleware('auth')->group(function () {
 */
 Route::get('/products/{product}/can-review', [ProductController::class, 'canReview'])
     ->middleware('auth');
+
 Route::get('/products/{product}/reviews', [ProductController::class, 'reviews']);
+
 Route::post('/reviews', [ProductController::class, 'storeReview'])
     ->middleware('auth');
 

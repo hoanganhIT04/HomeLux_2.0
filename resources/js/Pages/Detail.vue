@@ -392,7 +392,6 @@ const resetHover = () => {
               v-model="reviewContent"
             ></textarea>
 
-
             <div class="form__btn">
               <button 
                 class="review-submit-btn"
@@ -404,7 +403,6 @@ const resetHover = () => {
             </div>
           </form>
         </div>
-
 
         <!-- ================= REVIEW LIST ================= -->
         <div v-show="activeTab === 'list'" class="reviews__wrapper">
@@ -482,7 +480,6 @@ const resetHover = () => {
           </div>
         </div>
       </section>
-
 
       <!--=============== RELATED PRODUCTS ===============-->
       <section v-if="relatedProducts.length" class="products container section--lg">
