@@ -1705,3 +1705,9 @@ select:disabled {
     display: block;
     margin-top: 10px;
 }
+
+/* style disable btn review */
+.review-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

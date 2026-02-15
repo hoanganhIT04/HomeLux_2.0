@@ -52,11 +52,11 @@ class Product extends Model
         return $this->belongsToMany(User::class, 'wishlists');
     }
     public function isWishlistedByUser()
-        {
-            if (!Auth::check()) return false;
+    {
+        if (!Auth::check()) return false;
 
-            return $this->wishlistedBy()
-                ->where('user_id', Auth::id())
-                ->exists();
-        }
+        return $this->wishlistedBy()
+            ->where('user_id', Auth::id())
+            ->exists();
+    }
 }
