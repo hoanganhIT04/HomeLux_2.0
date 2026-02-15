@@ -3,6 +3,7 @@ import MainLayout from '@/Layouts/MainLayout.vue';
 import { ref, watch, computed, onMounted } from 'vue'
 import { addToCart } from '@/Services/cartService'
 import axios from 'axios'
+import { usePage } from '@inertiajs/vue3'
 
 const relatedProducts = ref([])
 
@@ -12,6 +13,8 @@ const props = defineProps({
 const product = ref({ ...props.product })
 
 const qty = ref(1)
+const page = usePage()
+const isLoggedIn = computed(() => !!page.props.auth.user)
 
 // đảm bảo không vượt min / max kể cả khi user gõ tay
 watch(qty, (val) => {
@@ -136,30 +139,27 @@ const changePage = (page) => {
   if (page < 1 || page > totalPages.value) return
   currentPage.value = page
 }
+
 onMounted(async () => {
   try {
-    // related
     const related = await axios.get(`/products/${props.product.id}/related`)
     relatedProducts.value = related.data
 
-    // reviews (AI CŨNG XEM ĐƯỢC)
     const reviewRes = await axios.get(`/products/${props.product.id}/reviews`)
     reviews.value = reviewRes.data
+
+    // 🔥 CHỈ GỌI KHI LOGIN
+    if (isLoggedIn.value) {
+      const can = await axios.get(`/products/${props.product.id}/can-review`)
+      canReview.value = can.data.can_review
+      orderItemId.value = can.data.order_item_id
+    }
 
   } catch (err) {
     console.error(err)
   }
-
-  // 🔥 can-review riêng, cho phép fail 401
-  try {
-    const can = await axios.get(`/products/${props.product.id}/can-review`)
-    canReview.value = can.data.can_review
-    orderItemId.value = can.data.order_item_id
-  } catch (err) {
-    // nếu 401 thì bỏ qua, không cần log
-    canReview.value = false
-  }
 })
+
 
 const submitReview = async () => {
   if (!canReview.value) return
@@ -392,7 +392,6 @@ const resetHover = () => {
               v-model="reviewContent"
             ></textarea>
 
-
             <div class="form__btn">
               <button 
                 class="review-submit-btn"
@@ -404,7 +403,6 @@ const resetHover = () => {
             </div>
           </form>
         </div>
-
 
         <!-- ================= REVIEW LIST ================= -->
         <div v-show="activeTab === 'list'" class="reviews__wrapper">
@@ -482,7 +480,6 @@ const resetHover = () => {
           </div>
         </div>
       </section>
-
 
       <!--=============== RELATED PRODUCTS ===============-->
       <section v-if="relatedProducts.length" class="products container section--lg">
