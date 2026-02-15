@@ -193,10 +193,7 @@ Route::middleware(['auth', 'admin'])
             Inertia::render('Admin/Dashboard')
         )->name('dashboard');
 
-        Route::get(
-            '/products',
-            [\App\Http\Controllers\Admin\ProductController::class, 'index']
-        )->name('products');
+        Route::resource('products', \App\Http\Controllers\Admin\ProductController::class);
 
         Route::get(
             '/categories',

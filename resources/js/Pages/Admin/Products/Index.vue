@@ -2,6 +2,7 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import { Link, router } from '@inertiajs/vue3'
 import { ref, watch } from 'vue'
+import { debounce } from 'lodash';
 
 /* ================= STATS ================= */
 const stats = ref([
@@ -19,13 +20,14 @@ const props = defineProps({
 /* ================= SEARCH ================= */
 const search = ref(props.filters.search || '')
 
-// Tìm kiếm tự động (Tuỳ chọn: Nếu bạn đã setup Lodash thì dùng debounce, nếu chưa thì gõ phím Enter)
-const handleSearch = () => {
-  router.get(route('admin.products.index'), { search: search.value }, {
-    preserveState: true,
-    replace: true
+// TÍNH NĂNG TÌM KIẾM: GÕ ĐẾN ĐÂU TÌM ĐẾN ĐÓ
+watch(search, debounce((value) => {
+  router.get(route('admin.products.index'), { search: value }, {
+    preserveState: true, // GIỮ FOCUS: Đảm bảo con trỏ chuột không bị văng ra khỏi ô input
+    replace: true,       // KHÔNG LƯU LỊCH SỬ RÁC: Tránh việc ấn nút Back trên trình duyệt phải lùi lại từng chữ cái
+    preserveScroll: true // Không bị nhảy thanh cuộn
   })
-}
+}, 500))
 </script>
 
 <template>
@@ -52,7 +54,6 @@ const handleSearch = () => {
               <i class="fa-solid fa-magnifying-glass"></i>
               <input 
                 v-model="search" 
-                @keyup.enter="handleSearch"
                 type="text" 
                 class="form__input"
                 placeholder="Tìm kiếm sản phẩm..." 
