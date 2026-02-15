@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 class Product extends Model
 {
     protected $table = 'products';
-    
+
     protected $fillable = [
         'name',
         'description',
@@ -53,10 +53,16 @@ class Product extends Model
     }
     public function isWishlistedByUser()
     {
-        if (!Auth::check()) return false;
+        if (!Auth::check())
+            return false;
 
         return $this->wishlistedBy()
             ->where('user_id', Auth::id())
             ->exists();
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

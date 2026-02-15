@@ -195,8 +195,7 @@ Route::middleware(['auth', 'admin'])
 
         Route::get(
             '/products',
-            fn() =>
-            Inertia::render('Admin/Products/Index')
+            [\App\Http\Controllers\Admin\ProductController::class, 'index']
         )->name('products');
 
         Route::get(

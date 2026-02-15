@@ -16,35 +16,35 @@ class ProductController extends Controller
     public function index()
     {
         $featuredProducts = Product::with(['primaryImage', 'secondaryImage'])
-        ->withExists([
-            'wishlistedBy as is_wishlisted' => fn ($q) =>
-                $q->where('user_id', Auth::id())
-        ])
-        ->orderByDesc('avg_rating')
-        ->limit(8)
-        ->get();
+            ->withExists([
+                'wishlistedBy as is_wishlisted' => fn($q) =>
+                    $q->where('user_id', Auth::id())
+            ])
+            ->orderByDesc('avg_rating')
+            ->limit(8)
+            ->get();
 
-    $popularProducts = Product::with(['primaryImage', 'secondaryImage'])
-        ->withExists([
-            'wishlistedBy as is_wishlisted' => fn ($q) =>
-                $q->where('user_id', Auth::id())
-        ])
-        ->orderByDesc('total_reviews')
-        ->limit(8)
-        ->get();
+        $popularProducts = Product::with(['primaryImage', 'secondaryImage'])
+            ->withExists([
+                'wishlistedBy as is_wishlisted' => fn($q) =>
+                    $q->where('user_id', Auth::id())
+            ])
+            ->orderByDesc('total_reviews')
+            ->limit(8)
+            ->get();
 
-    $newProducts = Product::with(['primaryImage', 'secondaryImage'])
-        ->withExists([
-            'wishlistedBy as is_wishlisted' => fn ($q) =>
-                $q->where('user_id', Auth::id())
-        ])
-        ->orderByDesc('created_at')
-        ->limit(8)
-        ->get();
+        $newProducts = Product::with(['primaryImage', 'secondaryImage'])
+            ->withExists([
+                'wishlistedBy as is_wishlisted' => fn($q) =>
+                    $q->where('user_id', Auth::id())
+            ])
+            ->orderByDesc('created_at')
+            ->limit(8)
+            ->get();
         return Inertia::render('Home', [
             'featuredProducts' => $featuredProducts,
-            'popularProducts'  => $popularProducts,
-            'newProducts'      => $newProducts,
+            'popularProducts' => $popularProducts,
+            'newProducts' => $newProducts,
         ]);
     }
     // SHOP – HIỂN THỊ TẤT CẢ SẢN PHẨM
@@ -55,17 +55,17 @@ class ProductController extends Controller
         if ($categoryIds && !is_array($categoryIds)) {
             $categoryIds = [$categoryIds];
         }
-        
+
         $query = Product::with([
-        'primaryImage',
-        'secondaryImage',
-        'categories'
+            'primaryImage',
+            'secondaryImage',
+            'categories'
         ])->withExists([
-            'wishlistedBy as is_wishlisted' => function ($q) {
-                $q->where('user_id', Auth::id());
-            }
-        ])
-        ->orderByDesc('created_at');
+                    'wishlistedBy as is_wishlisted' => function ($q) {
+                        $q->where('user_id', Auth::id());
+                    }
+                ])
+            ->orderByDesc('created_at');
 
         if (!empty($categoryIds)) {
             $query->whereHas('categories', function ($q) use ($categoryIds) {
@@ -93,11 +93,11 @@ class ProductController extends Controller
 
         // Filter price
         if ($request->filled('price_min')) {
-            $query->where('price', '>=', (int)$request->price_min);
+            $query->where('price', '>=', (int) $request->price_min);
         }
 
         if ($request->filled('price_max')) {
-            $query->where('price', '<=', (int)$request->price_max);
+            $query->where('price', '<=', (int) $request->price_max);
         }
 
         $products = $query->paginate(12)->withQueryString();
@@ -106,7 +106,7 @@ class ProductController extends Controller
             'products' => $products,
             'categories' => Category::orderBy('name')->get(),
             'filters' => [
-                'search'    => $request->search ?? '',
+                'search' => $request->search ?? '',
                 'category' => $categoryIds ?? [], // ✅ QUAN TRỌNG
                 'price_min' => $request->price_min,
                 'price_max' => $request->price_max,
@@ -124,17 +124,17 @@ class ProductController extends Controller
             'reviews',
             'categories',
         ])
-        ->withExists([
-            'wishlistedBy as is_wishlisted' => function ($q) {
-                $q->where('user_id', Auth::id());
-            }
-        ])
-        ->findOrFail($id);
+            ->withExists([
+                'wishlistedBy as is_wishlisted' => function ($q) {
+                    $q->where('user_id', Auth::id());
+                }
+            ])
+            ->findOrFail($id);
 
         return Inertia::render('Detail', [
             'product' => $product
         ]);
-    }   
+    }
 
     public function relatedProducts($id)
     {
@@ -148,19 +148,21 @@ class ProductController extends Controller
             'secondaryImage',
             'categories'
         ])
-        ->where('id', '!=', $id)
-        ->whereHas('categories', fn ($q) =>
-            $q->whereIn('categories.id', $categoryIds)
-        )
-        ->inRandomOrder()
-        ->limit(4)
-        ->get()
-        ->map(function ($p) use ($userId) {
-            $p->is_wishlisted = $userId
-                ? $p->wishlistedBy()->where('user_id', $userId)->exists()
-                : false;
-            return $p;
-        });
+            ->where('id', '!=', $id)
+            ->whereHas(
+                'categories',
+                fn($q) =>
+                $q->whereIn('categories.id', $categoryIds)
+            )
+            ->inRandomOrder()
+            ->limit(4)
+            ->get()
+            ->map(function ($p) use ($userId) {
+                $p->is_wishlisted = $userId
+                    ? $p->wishlistedBy()->where('user_id', $userId)->exists()
+                    : false;
+                return $p;
+            });
 
         return response()->json($relatedProducts);
     }
@@ -175,7 +177,7 @@ class ProductController extends Controller
         $orderItem = \App\Models\OrderItem::where('product_id', $product->id)
             ->whereHas('order', function ($q) use ($user) {
                 $q->where('user_id', $user->id)
-                ->where('status', 'completed');
+                    ->where('status', 'completed');
             })
             ->whereDoesntHave('review')
             ->first();
@@ -217,7 +219,7 @@ class ProductController extends Controller
             'user_id' => Auth::id(),
             'product_id' => $request->product_id,
             'rating' => $request->rating,
-            'content' => $request->content
+            'content' => $request->input('content')
         ]);
 
         // 🔥 TÍNH LẠI AVG
