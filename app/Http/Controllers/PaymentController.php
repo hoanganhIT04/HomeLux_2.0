@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderCreatedMail;
 
 class PaymentController extends Controller
 {
@@ -84,7 +86,7 @@ class PaymentController extends Controller
                 ->with('error', 'Session thanh toán đã hết hạn.');
         }
 
-        DB::transaction(function () use ($checkoutData) {
+        $order = DB::transaction(function () use ($checkoutData) {
 
             $publicId = 'ORD-' . strtoupper(Str::random(8));
 
@@ -109,11 +111,20 @@ class PaymentController extends Controller
             }
 
             CartItem::where('user_id', $checkoutData['user_id'])->delete();
+
+            return $order; // 🔥 QUAN TRỌNG
         });
+
+        // 🔥 Load quan hệ để dùng trong mail
+        $order->load(['user', 'items.product']);
+
+        // 🔥 GỬI MAIL TẠI ĐÂY
+        Mail::to($order->user->email)
+            ->queue(new OrderCreatedMail($order));
 
         session()->forget('checkout_data');
 
-        return redirect()->route('cart.index')
+        return redirect()->route('orders.show', $order->id)
             ->with('success', 'Thanh toán thành công.');
     }
 }

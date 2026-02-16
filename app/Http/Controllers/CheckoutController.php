@@ -10,8 +10,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\CheckoutStoreRequest;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderCreatedMail;
 
 class CheckoutController extends Controller
 {
@@ -116,10 +116,21 @@ class CheckoutController extends Controller
                 return $order;
             });
 
+            // 🔥 LOAD RELATION TRƯỚC KHI GỬI MAIL
+            $order->load([
+                'user',
+                'items.product'
+            ]);
+
+            // 🔥 GỬI MAIL XÁC NHẬN
+            Mail::to($order->user->email)
+                ->send(new OrderCreatedMail($order));
+
             return redirect()
                 ->route('cart.index')
                 ->with('success', "Đặt hàng thành công. Mã đơn: {$order->public_id}");
         }
+
 
         // ==========================
         // MOMO → KHÔNG TẠO ORDER
