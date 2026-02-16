@@ -75,7 +75,6 @@ const cancelOrder = () => {
     })
 }
 
-
 const getStatusColor = (status) => {
     switch (status) {
         case 'cancelled': return 'text-red-600 bg-red-50 border-red-200'
@@ -83,6 +82,20 @@ const getStatusColor = (status) => {
         default: return 'text-blue-600 bg-blue-50 border-blue-200'
     }
 }
+
+// thanh toán
+const getPaymentMethodLabel = (method) => {
+    switch (method) {
+        case 'cod': return 'Thanh toán khi nhận hàng (COD)'
+        case 'momo': return 'Ví MoMo'
+        default: return 'Không xác định'
+    }
+}
+
+const isPaid = computed(() => {
+    return props.order.payment_method === 'momo'
+})
+
 </script>
 
 <template>
@@ -242,24 +255,52 @@ const getStatusColor = (status) => {
                             </div>
                         </div>
                     </div>
-
                     <div class="bg-white shadow-sm border border-gray-100 rounded-xl p-6">
-                        <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Tổng thanh toán</h3>
+                        <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">
+                            Thanh toán
+                        </h3>
+
+                        <!-- Chi tiết tiền -->
                         <div class="space-y-2 text-sm text-gray-600">
                             <div class="flex justify-between">
                                 <span>Tạm tính</span>
                                 <span>{{ formatPrice(subTotal) }}</span>
                             </div>
+
                             <div class="flex justify-between">
                                 <span>Phí vận chuyển</span>
                                 <span>{{ formatPrice(order.shipping_fee) }}</span>
                             </div>
                         </div>
+
+                        <!-- Tổng -->
                         <div class="border-t mt-4 pt-4 flex justify-between items-center">
                             <span class="font-bold text-gray-800">Tổng cộng</span>
                             <span class="text-2xl font-bold text-[#3f9588]">
                                 {{ formatPrice(order.total_price) }}
                             </span>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="border-t mt-6 pt-4 space-y-3 text-sm">
+
+                            <!-- Phương thức -->
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Phương thức</span>
+                                <span class="font-medium text-gray-900">
+                                    {{ getPaymentMethodLabel(order.payment_method) }}
+                                </span>
+                            </div>
+
+                            <!-- Trạng thái thanh toán -->
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500">Trạng thái</span>
+                                <span class="px-3 py-1 text-xs font-medium rounded-full border" :class="isPaid
+                                    ? 'text-green-600 bg-green-50 border-green-200'
+                                    : 'text-orange-600 bg-orange-50 border-orange-200'">
+                                    {{ isPaid ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
