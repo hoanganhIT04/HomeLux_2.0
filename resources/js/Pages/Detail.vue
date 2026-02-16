@@ -406,8 +406,19 @@ const resetHover = () => {
 
         <!-- ================= REVIEW LIST ================= -->
         <div v-show="activeTab === 'list'" class="reviews__wrapper">
-
-          <div class="reviews__container grid">
+          <!-- Nếu KHÔNG có đánh giá -->
+          <div 
+            v-if="!paginatedReviews.length"
+            class="review__empty"
+          >
+            <i class="fa-regular fa-star"></i>
+            <p>Chưa có đánh giá nào</p>
+          </div>
+          <!-- Nếu có đánh giá -->
+          <div 
+            v-else 
+            class="reviews__container grid"
+          >
             <div 
               class="review__single"
               v-for="review in paginatedReviews"
