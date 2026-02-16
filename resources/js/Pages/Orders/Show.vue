@@ -165,38 +165,62 @@ const getStatusColor = (status) => {
 
                 <div class="lg:col-span-2 bg-white shadow-sm border border-gray-100 rounded-xl p-6">
                     <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Sản phẩm đã đặt</h3>
-                    <div class="space-y-4">
-                        <div v-for="item in order.items" :key="item.id" class="flex gap-4 py-2">
-                            <div class="w-24 h-24 flex-shrink-0 border rounded-lg overflow-hidden bg-gray-50">
-                                <img v-if="item.product"
-                                    :src="item.product?.primary_image?.image_url || 'https://via.placeholder.com/150?text=No+Image'"
-                                    :alt="item.product?.name || 'Product image'"
-                                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                                    @error="onImageError" />
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm text-left border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
+                                <tr>
+                                    <th class="px-4 py-3">Sản phẩm</th>
+                                    <th class="px-4 py-3 text-center">Đơn giá</th>
+                                    <th class="px-4 py-3 text-center">Số lượng</th>
+                                    <th class="px-4 py-3 text-right">Thành tiền</th>
+                                </tr>
+                            </thead>
 
-                                <div v-else
-                                    class="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                                    No Img
-                                </div>
-                            </div>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr v-for="item in order.items" :key="item.id" class="hover:bg-gray-50 transition">
 
-                            <div class="flex-1 flex flex-col justify-between items-start text-left">
-                                <div>
-                                    <h4 class="font-semibold text-gray-800 text-lg line-clamp-2">
-                                        {{ item.product ? item.product.name : 'Sản phẩm đã bị xóa' }}
-                                    </h4>
-                                    <p class="text-sm text-gray-500 mt-1">Đơn giá: {{ formatPrice(item.price) }}</p>
-                                </div>
-                                <div class="flex justify-between items-end">
-                                    <span class="text-sm bg-gray-100 px-2 py-1 rounded text-gray-600">
-                                        x{{ item.quantity }}
-                                    </span>
-                                    <span class="font-bold text-[#3f9588] text-lg">
+                                    <!-- Cột sản phẩm -->
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="w-16 h-16 flex-shrink-0 border rounded-lg overflow-hidden bg-gray-50">
+                                                <img v-if="item.product"
+                                                    :src="item.product?.primary_image?.image_url || 'https://via.placeholder.com/150?text=No+Image'"
+                                                    :alt="item.product?.name || 'Product image'"
+                                                    class="w-full h-full object-cover" @error="onImageError" />
+                                                <div v-else
+                                                    class="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                                                    No Img
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <p class="font-semibold text-gray-800 line-clamp-2">
+                                                    {{ item.product ? item.product.name : 'Sản phẩm đã bị xóa' }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Đơn giá -->
+                                    <td class="px-4 py-4 text-center text-gray-600">
+                                        {{ formatPrice(item.price) }}
+                                    </td>
+
+                                    <!-- Số lượng -->
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-gray-100 px-3 py-1 rounded-md text-gray-700">
+                                            x{{ item.quantity }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Thành tiền -->
+                                    <td class="px-4 py-4 text-right font-semibold text-[#3f9588]">
                                         {{ formatPrice(item.price * item.quantity) }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
