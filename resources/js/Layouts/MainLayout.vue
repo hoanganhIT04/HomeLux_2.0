@@ -211,10 +211,9 @@ onUnmounted(() => {
                             </Link>
                         </li>
                         <li><a :href="route('cart.index')" class="footer__link">Xem giỏ hàng</a></li>
-                        <li><a href="#" class="footer__link">Danh sách yêu thích</a></li>
-                        <li><a href="#" class="footer__link">Theo dõi đơn hàng</a></li>
+                        <li><a :href="route('wishlist')" class="footer__link">Danh sách yêu thích</a></li>
+                        <li><a :href="route('account')" class="footer__link">Theo dõi đơn hàng</a></li>
                         <li><a href="#" class="footer__link">Trợ giúp</a></li>
-                        <li><a href="#" class="footer__link">Đơn hàng</a></li>
                     </ul>
                 </div>
                 <div class="footer__content">
