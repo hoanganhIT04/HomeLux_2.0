@@ -26,7 +26,6 @@
                         </td>
                     </tr>
 
-                    <!-- Title -->
                     <tr>
                         <td align="center" style="padding:10px 30px 20px;">
                             <h2 style="margin:0;font-family:'Segoe UI';
@@ -36,7 +35,6 @@
                         </td>
                     </tr>
 
-                    <!-- Content -->
                     <tr>
                         <td style="padding:0 30px 25px;
                             font-family:'Segoe UI';
@@ -50,7 +48,6 @@
                         </td>
                     </tr>
 
-                    <!-- Order Info -->
                     <tr>
                         <td style="padding:0 30px 25px;">
                             <table width="100%" cellpadding="15" cellspacing="0" style="background:#f6fffa;border:1px solid #cce7d0;border-radius:8px;
@@ -82,8 +79,6 @@
                             </table>
                         </td>
                     </tr>
-
-                    <!-- Product List -->
                     <!-- Product List -->
                     <tr>
                         <td style="padding:0 30px;">
