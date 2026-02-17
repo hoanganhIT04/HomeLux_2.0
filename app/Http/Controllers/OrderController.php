@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use Inertia\Inertia;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
@@ -48,4 +49,28 @@ class OrderController extends Controller
 
     //     return redirect()->route('orders.show', $order->id);
     // }
+    public function invoice(Order $order)
+    {
+        $order->load('items.product');
+
+        return view('invoices.invoice', [
+            'order' => $order,
+            'isPdf' => false
+        ]);
+    }
+
+    public function invoicePdf(Order $order)
+    {
+        $order->load('items.product');
+
+        $pdf = Pdf::loadView('invoices.invoice', [
+            'order' => $order,
+            'isPdf' => true
+        ]);
+
+        return $pdf->download(
+            $order->public_id.'-'.now()->format('Ymd').'.pdf'
+        );
+
+    }
 }

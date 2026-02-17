@@ -175,6 +175,17 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/password', [PasswordController::class, 'update'])
         ->name('password.update');
 });
+/*
+|--------------------------------------------------------------------------
+| PDF invoice Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])
+    ->name('orders.invoice');
+
+Route::get('/orders/{order}/invoice/pdf', [OrderController::class, 'invoicePdf'])
+    ->name('orders.invoice.pdf');
+
 
 /*
 |--------------------------------------------------------------------------

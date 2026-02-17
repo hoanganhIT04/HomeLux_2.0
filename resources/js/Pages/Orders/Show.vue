@@ -103,44 +103,82 @@ const isPaid = computed(() => {
         <div class="container py-8 max-w-5xl mx-auto px-4">
 
             <div class="bg-white shadow-sm border border-gray-100 rounded-xl p-6 mb-6">
-                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-4">
                             <h2 class="text-2xl font-bold text-gray-800">
                                 Đơn hàng #{{ order.public_id || order.id }}
                             </h2>
-                            <span class="px-3 py-1 text-sm font-medium rounded-full border"
-                                :class="getStatusColor(normalizedStatus)">
+                            <span
+                                class="inline-flex items-center justify-center px-4 h-9 text-sm font-semibold rounded-full border whitespace-nowrap"
+                                :class="getStatusColor(normalizedStatus)"
+                            >
                                 {{
                                     normalizedStatus === 'processing' ? 'Đang xử lý' :
-                                        normalizedStatus === 'delivering' ? 'Đang giao hàng' :
-                                            normalizedStatus === 'completed' ? 'Giao hàng thành công' :
-                                                'Đã huỷ'
+                                    normalizedStatus === 'delivering' ? 'Đang giao hàng' :
+                                    normalizedStatus === 'completed' ? 'Giao hàng thành công' :
+                                    'Đã huỷ'
                                 }}
                             </span>
-
                         </div>
                         <p class="text-gray-500 text-sm mt-1">
                             Đặt ngày: {{ formatDate(order.created_at) }}
                         </p>
                     </div>
 
-                    <div v-if="canCancel">
-                        <button @click="cancelOrder" :disabled="cancelling"
-                            class="px-6 py-2.5 font-semibold rounded-lg transition-all duration-200 flex items-center gap-2"
+                    <div class="flex items-center gap-4 shrink-0">
+
+                        <!-- Xem & In -->
+                        <a :href="route('orders.invoice', order.id)"
+                        target="_blank"
+                        class="group relative inline-flex items-center justify-center gap-2
+                               h-11 px-6
+                               font-semibold rounded-xl
+                               bg-gradient-to-r from-emerald-500 to-teal-600
+                             text-white shadow-sm
+                               transition-all duration-300
+                               hover:shadow-lg hover:-translate-y-0.5 active:scale-95">
+
+                            <i class="fa-solid fa-print transition-transform duration-300 group-hover:rotate-12"></i>
+                            <span>Xem & In hóa đơn</span>
+
+                            <!-- hiệu ứng ánh sáng -->
+                            <span class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition duration-300"></span>
+                        </a>
+
+
+                        <!-- Tải PDF -->
+                        <a :href="route('orders.invoice.pdf', order.id)"
+                        class="group relative inline-flex items-center justify-center gap-2
+                               h-11 px-6
+                               font-semibold rounded-xl
+                               bg-gradient-to-r from-gray-700 to-gray-900
+                             text-white shadow-sm
+                               transition-all duration-300
+                               hover:shadow-lg hover:-translate-y-0.5 active:scale-95">
+
+                            <i class="fa-solid fa-file-pdf transition-transform duration-300 group-hover:scale-125"></i>
+                            <span>Tải PDF</span>
+
+                            <!-- hiệu ứng glow -->
+                            <span class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition duration-300"></span>
+                        </a>
+
+
+                        <!-- Huỷ đơn -->
+                        <button v-if="canCancel"
+                            @click="cancelOrder"
+                            :disabled="cancelling"
+                            class="px-6 py-2.5 font-semibold rounded-xl transition-all duration-300"
                             :class="cancelling
                                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                : 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white'">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                                : 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white hover:-translate-y-1 active:scale-95 shadow-sm hover:shadow-lg'">
 
+                            <i class="fa-solid fa-ban mr-2"></i>
                             {{ cancelling ? 'Đang huỷ...' : 'Huỷ đơn hàng' }}
                         </button>
-                    </div>
 
+                    </div>
                 </div>
             </div>
 
