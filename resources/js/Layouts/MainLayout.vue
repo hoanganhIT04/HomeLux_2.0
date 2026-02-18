@@ -32,12 +32,25 @@ const logout = () => {
     router.post(route('logout'))
 }
 
+watch(search, debounce((newValue) => {
+    performSearch(newValue)
+}, 500))
+
 const submitSearch = () => {
-    router.get('/shop', { search: search.value }, {
-        preserveState: true,
-        preserveScroll: true,
-    })
+    performSearch(search.value)
 }
+
+const performSearch = (value) => {
+    router.get('/shop', 
+        { search: value }, // Gửi tham số search lên server
+        { 
+            preserveState: true,  // Giữ trạng thái con trỏ chuột trong ô input
+            replace: true,        // Không tạo thêm lịch sử duyệt web rác
+            preserveScroll: true  // Giữ nguyên vị trí cuộn trang
+        }
+    )
+}
+
 
 onMounted(() => {
     loadCartCount()
