@@ -27,7 +27,7 @@ const logout = () => {
                 <span>Tổng Quan</span>
             </Link>
 
-            <Link :href="route('admin.products')" 
+            <Link :href="route('admin.products.index')" 
                 :class="['menu-item', { active: route().current('admin.products') }]">
                 <i class="fa-solid fa-box"></i>
                 <span>Sản Phẩm</span>

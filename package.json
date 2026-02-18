@@ -22,6 +22,7 @@
     },
     "dependencies": {
         "chart.js": "^4.5.1",
+        "lodash": "^4.17.23",
         "swiper": "^12.1.0",
         "vue3-carousel": "^0.17.0"
     }
