@@ -337,7 +337,13 @@ const resetHover = () => {
                 <span>Tags:</span>Clothes, Women, Dress
               </li> -->
               <li class="meta__list flex">
-                <span>Số lượng:</span>{{ product.quantity }} trong kho
+                <span>Số lượng:</span>
+                <span>{{ product.quantity }} trong kho</span>
+              </li>
+
+              <li class="meta__list flex">
+                <span>Số lượt đánh giá:</span>
+                <span>{{ product.total_reviews || 0 }}</span>
               </li>
             </ul>
           </div>
