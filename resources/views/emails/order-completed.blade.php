@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Xác nhận đơn hàng</title>
+    <title>Đơn hàng đã giao thành công</title>
 </head>
 
 <body style="margin:0;padding:0;background-color:#e9f8ec;">
@@ -30,7 +30,7 @@
                         <td align="center" style="padding:10px 30px 20px;">
                             <h2 style="margin:0;font-family:'Segoe UI';
                        font-size:20px;font-weight:600;">
-                                Xác nhận đơn hàng
+                                Đơn hàng đã giao thành công 🎉
                             </h2>
                         </td>
                     </tr>
@@ -43,8 +43,8 @@
                             color:#465b52;">
                             Xin chào <strong>{{ $order->receiver_name ?? $order->user->name }}</strong>,<br><br>
 
-                            Cảm ơn bạn đã đặt hàng tại <strong>TOY MARK</strong>.
-                            Đơn hàng của bạn đã được ghi nhận với thông tin sau:
+                            Đơn hàng của bạn tại <strong>TOY MARK</strong> đã được giao thành công.
+                            Cảm ơn bạn đã tin tưởng và mua sắm cùng chúng tôi.
                         </td>
                     </tr>
 
@@ -59,26 +59,13 @@
                                         <strong>Ngày đặt:</strong> {{ $order->created_at->format('d/m/Y H:i') }} <br>
                                         <strong>Phương thức:</strong> {{ strtoupper($order->payment_method) }} <br>
                                         <strong>Tổng tiền:</strong> {{ number_format($order->total_price) }} VNĐ <br>
-
-                                        @php
-                                        $statusMap = [
-                                        'pending' => 'Đang xử lý',
-                                        'paid' => 'Đang xử lý',
-                                        'processing' => 'Đang xử lý',
-                                        'delivering' => 'Đang giao',
-                                        'completed' => 'Đã giao',
-                                        'cancelled' => 'Đã huỷ',
-                                        ];
-                                        $statusLabel = $statusMap[$order->status] ?? 'Đang xử lý';
-                                        @endphp
-
-                                        <strong>Trạng thái:</strong> {{ $statusLabel }}
-
+                                        <strong>Trạng thái:</strong> Hoàn thành
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
+
                     <!-- Product List -->
                     <tr>
                         <td style="padding:0 30px;">
@@ -158,7 +145,6 @@
                             <strong>Địa chỉ giao hàng:</strong><br>
                             {{ $order->full_address }}<br>
                             {{ $order->receiver_phone }}
-
                         </td>
                     </tr>
 
