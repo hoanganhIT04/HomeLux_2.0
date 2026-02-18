@@ -343,7 +343,7 @@ const resetHover = () => {
 
               <li class="meta__list flex">
                 <span>Số lượt đánh giá:</span>
-                <span>{{ product.total_reviews || 0 }}</span>
+                <span>{{ product.total_reviews || 0 }} lượt đánh giá</span>
               </li>
             </ul>
           </div>
