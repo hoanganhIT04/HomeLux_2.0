@@ -36,10 +36,10 @@ class OrderController extends Controller
                         ->send(new OrderDeliveringMail($order));
                     break;
 
-                    // case 'completed':
-                    //     Mail::to($order->user->email)
-                    //         ->send(new OrderCompletedMail($order));
-                    //     break;
+                    case 'completed':
+                        Mail::to($order->user->email)
+                            ->send(new OrderCompletedMail($order));
+                        break;
 
                     // case 'cancelled':
                     //     Mail::to($order->user->email)
