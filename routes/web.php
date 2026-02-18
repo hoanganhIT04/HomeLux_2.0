@@ -193,6 +193,8 @@ Route::get('/orders/{order}/invoice/pdf', [OrderController::class, 'invoicePdf']
 |--------------------------------------------------------------------------
 */
 
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->as('admin.') // 👈 QUAN TRỌNG
@@ -220,6 +222,11 @@ Route::middleware(['auth', 'admin'])
             fn() =>
             Inertia::render('Admin/Orders/Index')
         )->name('orders');
+
+        Route::patch(
+            '/orders/{order}/status',
+            [AdminOrderController::class, 'updateStatus']
+        )->name('orders.updateStatus');
 
         Route::get(
             '/users',
