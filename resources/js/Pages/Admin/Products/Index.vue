@@ -1,5 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue'
+import ProductModal from './ProductModal.vue';
 import { Link, router } from '@inertiajs/vue3'
 import { ref, watch } from 'vue'
 import { debounce } from 'lodash';
@@ -15,6 +16,7 @@ const stats = ref([
 const props = defineProps({
   products: Object,
   filters: Object,
+  categories: Array,
 })
 
 /* ================= SEARCH ================= */
@@ -28,6 +30,31 @@ watch(search, debounce((value) => {
     preserveScroll: true // Không bị nhảy thanh cuộn
   })
 }, 500))
+
+/* ================= QUẢN LÝ MODAL ================= */
+const showModal = ref(false)
+const editMode = ref(false)
+const selectedProduct = ref(null)
+
+// Mở form thêm mới
+const openCreateModal = () => {
+  editMode.value = false
+  selectedProduct.value = null
+  showModal.value = true
+}
+
+// Mở form chỉnh sửa
+const openEditModal = (product) => {
+  editMode.value = true
+  selectedProduct.value = product
+  showModal.value = true
+}
+
+// Đóng form
+const closeModal = () => {
+  showModal.value = false
+  selectedProduct.value = null
+}
 </script>
 
 <template>
@@ -52,16 +79,10 @@ watch(search, debounce((value) => {
           <div class="header-actions">
             <div class="search-box">
               <i class="fa-solid fa-magnifying-glass"></i>
-              <input 
-                v-model="search" 
-                type="text" 
-                class="form__input"
-                placeholder="Tìm kiếm sản phẩm..." 
-              />
+              <input v-model="search" type="text" class="form__input" placeholder="Tìm kiếm sản phẩm..." />
             </div>
 
-            <button class="btn">
-              <i class="fa-solid fa-plus"></i> Thêm sản phẩm
+            <button class="btn" @click="openCreateModal"> <i class="fa-solid fa-plus"></i> Thêm sản phẩm
             </button>
           </div>
         </div>
@@ -126,9 +147,11 @@ watch(search, debounce((value) => {
             </li>
           </ul>
         </div>
-
       </div>
     </div>
+
+    <ProductModal :show="showModal" :editMode="editMode" :product="selectedProduct" :categories="categories"
+      @close="closeModal" />
   </AdminLayout>
 </template>
 
@@ -147,6 +170,7 @@ watch(search, debounce((value) => {
   gap: 1.5rem;
   flex-wrap: wrap;
 }
+
 .stat-card {
   flex: 1;
   min-width: 220px;
@@ -159,18 +183,22 @@ watch(search, debounce((value) => {
   border: 1px solid #e5e7eb;
   transition: 0.3s ease;
 }
+
 .stat-card i {
   font-size: 1.6rem;
   color: #0f766e;
 }
+
 .stat-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
 }
+
 .stat-label {
   font-size: 0.85rem;
   color: #6b7280;
 }
+
 .stat-number {
   font-size: 1.6rem;
   font-weight: 700;
@@ -224,7 +252,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   text-align: center;
   padding: 1rem 0;
   vertical-align: middle;
@@ -267,14 +296,39 @@ tbody tr:hover {
 
 /* ===== BẢNG RESPONSIVE MOBILE ===== */
 @media (max-width: 768px) {
-  .product-img { margin: 0; }
-  .table-card { padding: 1.2rem; }
-  .table-header, .header-actions { flex-direction: column; align-items: stretch; width: 100%; }
-  .search-box { width: 100%; }
-  
-  table, thead, tbody, th, td, tr { display: block; width: 100%; }
-  thead { display: none; }
-  
+  .product-img {
+    margin: 0;
+  }
+
+  .table-card {
+    padding: 1.2rem;
+  }
+
+  .table-header,
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
+
   tbody tr {
     background: #ffffff;
     padding: 1.2rem;
@@ -282,7 +336,7 @@ tbody tr:hover {
     margin-bottom: 1.5rem;
     border: 1px solid #e5e7eb;
   }
-  
+
   tbody td {
     position: relative;
     display: flex;
@@ -292,21 +346,44 @@ tbody tr:hover {
     border-bottom: 1px solid #f1f5f9;
     text-align: right;
   }
-  
-  tbody td:last-child { border-bottom: none; }
+
+  tbody td:last-child {
+    border-bottom: none;
+  }
+
   tbody td::before {
     position: absolute;
     left: 1rem;
     font-weight: 600;
     color: #6b7280;
   }
-  
-  tbody td:nth-child(1)::before { content: "ID"; }
-  tbody td:nth-child(2)::before { content: "Hình ảnh"; }
-  tbody td:nth-child(3)::before { content: "Tên"; }
-  tbody td:nth-child(4)::before { content: "Giá"; }
-  tbody td:nth-child(5)::before { content: "Tồn kho"; }
-  tbody td:nth-child(6)::before { content: "Đã bán"; }
-  tbody td:nth-child(7)::before { content: "Hành động"; }
+
+  tbody td:nth-child(1)::before {
+    content: "ID";
+  }
+
+  tbody td:nth-child(2)::before {
+    content: "Hình ảnh";
+  }
+
+  tbody td:nth-child(3)::before {
+    content: "Tên";
+  }
+
+  tbody td:nth-child(4)::before {
+    content: "Giá";
+  }
+
+  tbody td:nth-child(5)::before {
+    content: "Tồn kho";
+  }
+
+  tbody td:nth-child(6)::before {
+    content: "Đã bán";
+  }
+
+  tbody td:nth-child(7)::before {
+    content: "Hành động";
+  }
 }
 </style>

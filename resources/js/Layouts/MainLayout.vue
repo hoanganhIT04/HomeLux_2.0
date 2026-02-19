@@ -6,9 +6,12 @@ import { debounce } from 'lodash';
 
 const showMenu = ref(false)
 const showLogoutModal = ref(false)
-const search = ref('')
 
 const page = usePage()
+
+const search = ref(page.props.filters?.search || '')
+
+
 const user = computed(() => page.props.auth.user)
 
 // cart count LOCAL
@@ -32,12 +35,25 @@ const logout = () => {
     router.post(route('logout'))
 }
 
+watch(search, debounce((newValue) => {
+    performSearch(newValue)
+}, 200))
+
 const submitSearch = () => {
-    router.get('/shop', { search: search.value }, {
-        preserveState: true,
-        preserveScroll: true,
-    })
+    performSearch(search.value)
 }
+
+const performSearch = (value) => {
+    router.get('/shop', 
+        { search: value }, // Gửi tham số search lên server
+        { 
+            preserveState: true,  // Giữ trạng thái con trỏ chuột trong ô input
+            replace: true,        // Không tạo thêm lịch sử duyệt web rác
+            preserveScroll: true  // Giữ nguyên vị trí cuộn trang
+        }
+    )
+}
+
 
 onMounted(() => {
     loadCartCount()
