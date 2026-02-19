@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Category;
 
 class ProductController extends Controller
 {
@@ -38,10 +39,9 @@ class ProductController extends Controller
         });
 
         return Inertia::render('Admin/Products/Index', [
-            'filters' => [
-                'search' => $request->search,
-            ],
+            'filters' => ['search' => $request->search],
             'products' => $transformedProducts, // Truyền Paginator object (đã transform items)
+            'categories' => Category::select('id', 'name')->get(),
         ]);
     }
 }

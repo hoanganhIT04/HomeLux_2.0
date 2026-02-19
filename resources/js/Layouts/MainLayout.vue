@@ -6,9 +6,12 @@ import { debounce } from 'lodash';
 
 const showMenu = ref(false)
 const showLogoutModal = ref(false)
-const search = ref('')
 
 const page = usePage()
+
+const search = ref(page.props.filters?.search || '')
+
+
 const user = computed(() => page.props.auth.user)
 
 // cart count LOCAL
@@ -34,7 +37,7 @@ const logout = () => {
 
 watch(search, debounce((newValue) => {
     performSearch(newValue)
-}, 500))
+}, 200))
 
 const submitSearch = () => {
     performSearch(search.value)
