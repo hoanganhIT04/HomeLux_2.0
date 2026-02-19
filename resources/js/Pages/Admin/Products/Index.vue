@@ -112,7 +112,7 @@ const closeModal = () => {
 
                 <td class="table__action-cell">
                   <div class="table__actions">
-                    <button class="action-btn action-btn--edit" aria-label="Sửa">
+                    <button @click="openEditModal(p)" class="action-btn action-btn--edit" aria-label="Sửa">
                       <i class="fa-solid fa-pen"></i>
                     </button>
                     <button class="action-btn action-btn--delete" aria-label="Xóa">
