@@ -16,14 +16,14 @@ const form = useForm({
     quantity: '', 
     description: '',
     images: [null, null, null, null], 
-    model_file: null, // Biến chứa file 3D thực tế để gửi lên server
+    existing_images: [null, null, null, null], 
+    clear_model: false,
+    model_file: null, 
     _method: 'POST'
 })
 
-// Chứa URL để xem trước ảnh
-const imagePreviews = ref([null, null, null, null])
-// Chứa URL để xem trước Model 3D
-const modelPreview = ref(null)
+const imagePreviews = ref([null, null, null, null]) // Chứa URL để xem trước ảnh 
+const modelPreview = ref(null) // Chứa URL để xem trước Model 3D
 
 // --- LOGIC ---
 watch(() => props.show, (val) => {
@@ -38,25 +38,35 @@ watch(() => props.show, (val) => {
             form.description = props.product.description || ''
             form._method = 'PUT'
             
-            // Xử lý nạp ảnh cũ
+            // 2. (SỬA Ở ĐÂY) Load ảnh cũ vào form.existing_images
             let loadedPreviews = [null, null, null, null];
+            let loadedExisting = [null, null, null, null];
+            
             if (props.product.all_images && props.product.all_images.length > 0) {
                 for (let i = 0; i < 4; i++) {
-                    if (props.product.all_images[i]) loadedPreviews[i] = props.product.all_images[i];
+                    if (props.product.all_images[i]) {
+                        loadedPreviews[i] = props.product.all_images[i];
+                        loadedExisting[i] = props.product.all_images[i]; // Giữ URL để nộp lên backend
+                    }
                 }
             } else if (props.product.image) {
                 loadedPreviews[0] = props.product.image;
+                loadedExisting[0] = props.product.image;
             }
-            imagePreviews.value = loadedPreviews;
             
-            // Xử lý nạp Model 3D cũ (Giả sử controller trả về biến model_url)
+            imagePreviews.value = loadedPreviews;
+            form.existing_images = loadedExisting;
+            
             modelPreview.value = props.product.model_url || null;
             form.model_file = null;
+            form.clear_model = false; // Reset trạng thái xóa model
 
         } else {
             form.reset(); form.clearErrors();
             imagePreviews.value = [null, null, null, null]
+            form.existing_images = [null, null, null, null]
             modelPreview.value = null;
+            form.clear_model = false;
             form._method = 'POST'
         }
     }
@@ -76,7 +86,15 @@ const handleImageUpload = (e, index) => {
 const clearImage = (index) => {
     imagePreviews.value[index] = null;
     form.images[index] = null;
+    form.existing_images[index] = null; 
     document.getElementById('file-input-' + index).value = '';
+}
+
+const clearModel = () => {
+    form.model_file = null;
+    modelPreview.value = null;
+    form.clear_model = true; 
+    document.getElementById('model-upload').value = '';
 }
 
 // --- XỬ LÝ UPLOAD MODEL 3D ---
@@ -94,11 +112,7 @@ const handleModelUpload = (e) => {
     }
 }
 
-const clearModel = () => {
-    form.model_file = null;
-    modelPreview.value = null;
-    document.getElementById('model-upload').value = '';
-}
+
 
 const triggerImageUpload = (index) => {
     if (!imagePreviews.value[index]) {
