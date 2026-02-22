@@ -10,86 +10,80 @@ const logout = () => {
 </script>
 
 <template>
-<div class="sidebar">
+    <div class="sidebar">
 
-     <div class="sidebar-top">
-        <div class="sidebar-logo">
-            <img src="/assets/img/logo-removebg-toymark-2.png" />
-            <span>ADMIN PANEL</span>
+        <div class="sidebar-top">
+            <div class="sidebar-logo">
+                <img src="/assets/img/logo-removebg-toymark-2.png" />
+                <span>ADMIN PANEL</span>
+            </div>
+
+            <!-- MENU -->
+            <nav class="sidebar-menu">
+                <Link :href="route('admin.dashboard')"
+                    :class="['menu-item', { active: route().current('admin.dashboard') }]">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Tổng Quan</span>
+                </Link>
+
+                <Link :href="route('admin.products.index')"
+                    :class="['menu-item', { active: route().current('admin.products.*') }]">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Sản Phẩm</span>
+                </Link>
+
+                <Link :href="route('admin.categories.index')"
+                    :class="['menu-item', { active: route().current('admin.categories.*') }]">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Danh Mục</span>
+                </Link>
+
+                <Link :href="route('admin.orders.index')"
+                    :class="['menu-item', { active: route().current('admin.orders.*') }]">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Đơn Hàng</span>
+                </Link>
+
+                <Link :href="route('admin.users')" :class="['menu-item', { active: route().current('admin.users') }]">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Người Dùng</span>
+                </Link>
+            </nav>
         </div>
 
-    <!-- MENU -->
-        <nav class="sidebar-menu">
-
-            <Link :href="route('admin.dashboard')" 
-                :class="['menu-item', { active: route().current('admin.dashboard') }]">
-                <i class="fa-solid fa-chart-line"></i>
-                <span>Tổng Quan</span>
-            </Link>
-
-            <Link :href="route('admin.products.index')" 
-                :class="['menu-item', { active: route().current('admin.products') }]">
-                <i class="fa-solid fa-box"></i>
-                <span>Sản Phẩm</span>
-            </Link>
-
-            <Link :href="route('admin.categories.index')" 
-                :class="['menu-item', { active: route().current('admin.categories') }]">
-                <i class="fa-solid fa-layer-group"></i>
-                <span>Danh Mục</span>
-            </Link>
-
-            <Link :href="route('admin.orders')" 
-                :class="['menu-item', { active: route().current('admin.orders') }]">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <span>Đơn Hàng</span>
-            </Link>
-
-            <Link :href="route('admin.users')" 
-                :class="['menu-item', { active: route().current('admin.users') }]">
-                <i class="fa-solid fa-users"></i>
-                <span>Người Dùng</span>
-            </Link>
-
-        </nav>
-    </div>
-
-    <!-- LOGOUT -->
-    <div class="sidebar-footer">
-        <button class="logout-btn" @click="showLogoutModal = true">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            Đăng xuất
-        </button>
-    </div>
-</div>
-<!-- Logout Confirm Modal -->
-<div v-if="showLogoutModal"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-
-    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">
-            Xác nhận đăng xuất
-        </h2>
-
-        <p class="text-gray-600 mb-6">
-            Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?
-        </p>
-
-        <div class="flex justify-end gap-3">
-            <button
-                @click="showLogoutModal = false"
-                class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100">
-                Hủy
-            </button>
-
-            <button
-                @click="logout"
-                class="px-4 py-2 rounded-lg text-white bg-[#088179] hover:bg-[#066f68] transition">
+        <!-- LOGOUT -->
+        <div class="sidebar-footer">
+            <button class="logout-btn" @click="showLogoutModal = true">
+                <i class="fa-solid fa-right-from-bracket"></i>
                 Đăng xuất
             </button>
         </div>
     </div>
-</div>
+    <!-- Logout Confirm Modal -->
+    <div v-if="showLogoutModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">
+                Xác nhận đăng xuất
+            </h2>
+
+            <p class="text-gray-600 mb-6">
+                Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?
+            </p>
+
+            <div class="flex justify-end gap-3">
+                <button @click="showLogoutModal = false"
+                    class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100">
+                    Hủy
+                </button>
+
+                <button @click="logout"
+                    class="px-4 py-2 rounded-lg text-white bg-[#088179] hover:bg-[#066f68] transition">
+                    Đăng xuất
+                </button>
+            </div>
+        </div>
+    </div>
 
 </template>
 
@@ -99,15 +93,14 @@ const logout = () => {
 .sidebar {
     width: 260px;
     height: 100vh;
-    background: linear-gradient(
-        to bottom,
-        #0a0e14 0%,   
-        #121c33 100%  
-    );
+    background: linear-gradient(to bottom,
+            #0a0e14 0%,
+            #121c33 100%);
 
     display: flex;
     flex-direction: column;
-    padding: 0;                 /* bỏ padding để logo full */
+    padding: 0;
+    /* bỏ padding để logo full */
 }
 
 /* ================= TOP AREA ================= */
@@ -125,11 +118,13 @@ const logout = () => {
 }
 
 .sidebar-logo img {
-    width: 100%;        /* FULL WIDTH */
-    max-width: 190px;   /* không quá to */
+    width: 100%;
+    /* FULL WIDTH */
+    max-width: 190px;
+    /* không quá to */
     object-fit: contain;
     display: block;
-    margin: 0 auto; 
+    margin: 0 auto;
 }
 
 .sidebar-logo span {
@@ -179,7 +174,8 @@ const logout = () => {
 /* ================= PUSH FOOTER DOWN ================= */
 
 .sidebar-footer {
-    margin-top: auto;       /* 👈 cái này đẩy logout xuống đáy */
+    margin-top: auto;
+    /* 👈 cái này đẩy logout xuống đáy */
     padding: 1.5rem;
 }
 
@@ -205,5 +201,4 @@ const logout = () => {
     background: #dc2626;
     color: white;
 }
-
 </style>
