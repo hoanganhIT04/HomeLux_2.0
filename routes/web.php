@@ -210,25 +210,22 @@ Route::middleware(['auth', 'admin'])
 
         Route::resource('products', AdminProductController::class);
 
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
         Route::resource('categories', AdminCategoryController::class)
             ->only(['index', 'store', 'update', 'destroy']);
-
+    
         // Route::get(
-        //     '/categories',
+        //     '/orders',
         //     fn() =>
-        //     Inertia::render('Admin/Categories/Index')
-        // )->name('categories');
+        //     Inertia::render('Admin/Orders/Index')
+        // )->name('orders');
 
-        Route::get(
-            '/orders',
-            fn() =>
-            Inertia::render('Admin/Orders/Index')
-        )->name('orders');
-
-        Route::patch(
-            '/orders/{order}/status',
-            [AdminOrderController::class, 'updateStatus']
-        )->name('orders.updateStatus');
+        // Route::patch(
+        //     '/orders/{order}/status',
+        //     [AdminOrderController::class, 'updateStatus']
+        // )->name('orders.updateStatus');
 
         Route::get(
             '/users',
