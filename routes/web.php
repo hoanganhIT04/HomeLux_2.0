@@ -202,11 +202,7 @@ Route::middleware(['auth', 'admin'])
     ->as('admin.') // 👈 QUAN TRỌNG
     ->group(function () {
 
-        Route::get(
-            '/dashboard',
-            fn() =>
-            Inertia::render('Admin/Dashboard')
-        )->name('dashboard');
+        Route::get('/dashboard', [AdminOrderController::class, 'dashboard'])->name('dashboard');
 
         Route::resource('products', AdminProductController::class);
 
@@ -215,18 +211,18 @@ Route::middleware(['auth', 'admin'])
 
         Route::resource('categories', AdminCategoryController::class)
             ->only(['index', 'store', 'update', 'destroy']);
-    
+
         // Route::get(
         //     '/orders',
         //     fn() =>
         //     Inertia::render('Admin/Orders/Index')
         // )->name('orders');
-
+    
         // Route::patch(
         //     '/orders/{order}/status',
         //     [AdminOrderController::class, 'updateStatus']
         // )->name('orders.updateStatus');
-
+    
         Route::get(
             '/users',
             fn() =>

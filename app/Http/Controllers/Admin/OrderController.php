@@ -79,4 +79,48 @@ class OrderController extends Controller
 
         return back()->with('success', 'Cập nhật trạng thái thành công');
     }
+
+    public function dashboard()
+    {
+        // 1. Tính tổng doanh thu toàn thời gian
+        $totalCod = Order::where('payment_method', 'cod')
+            ->where('status', 'completed')
+            ->sum('total_price');
+
+        $totalMomo = Order::where('payment_method', 'momo')
+            ->where('status', '!=', 'cancelled')
+            ->sum('total_price');
+
+        $totalRevenue = $totalCod + $totalMomo;
+
+        // 2. Tính dữ liệu biểu đồ cho 30 NGÀY GẦN NHẤT
+        $chartLabels = [];
+        $chartData = [];
+
+        // SỬA TỪ 6 THÀNH 29 Ở ĐÂY
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $chartLabels[] = now()->subDays($i)->format('d/m');
+
+            // COD: Tính theo ngày cập nhật sang trạng thái Hoàn thành
+            $codDaily = Order::where('payment_method', 'cod')
+                ->where('status', 'completed')
+                ->whereDate('updated_at', $date)
+                ->sum('total_price');
+
+            // MoMo: Tính theo ngày đặt hàng
+            $momoDaily = Order::where('payment_method', 'momo')
+                ->where('status', '!=', 'cancelled')
+                ->whereDate('created_at', $date)
+                ->sum('total_price');
+
+            $chartData[] = $codDaily + $momoDaily;
+        }
+
+        return Inertia::render('Admin/Dashboard', [
+            'totalRevenue' => $totalRevenue,
+            'chartLabels' => $chartLabels,
+            'chartData' => $chartData,
+        ]);
+    }
 }
