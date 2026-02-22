@@ -33,7 +33,7 @@ const logout = () => {
                 <span>Sản Phẩm</span>
             </Link>
 
-            <Link :href="route('admin.categories')" 
+            <Link :href="route('admin.categories.index')" 
                 :class="['menu-item', { active: route().current('admin.categories') }]">
                 <i class="fa-solid fa-layer-group"></i>
                 <span>Danh Mục</span>

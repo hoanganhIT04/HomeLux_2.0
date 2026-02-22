@@ -194,6 +194,8 @@ Route::get('/orders/{order}/invoice/pdf', [OrderController::class, 'invoicePdf']
 */
 
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
@@ -206,13 +208,16 @@ Route::middleware(['auth', 'admin'])
             Inertia::render('Admin/Dashboard')
         )->name('dashboard');
 
-        Route::resource('products', \App\Http\Controllers\Admin\ProductController::class);
+        Route::resource('products', AdminProductController::class);
 
-        Route::get(
-            '/categories',
-            fn() =>
-            Inertia::render('Admin/Categories/Index')
-        )->name('categories');
+        Route::resource('categories', AdminCategoryController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        // Route::get(
+        //     '/categories',
+        //     fn() =>
+        //     Inertia::render('Admin/Categories/Index')
+        // )->name('categories');
 
         Route::get(
             '/orders',
