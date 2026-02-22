@@ -66,28 +66,51 @@ class ProductController extends Controller
     }
     public function store(Request $request)
     {
-        // 1. Tạo SP & Gắn danh mục
-        $product = Product::create($request->except(['images', 'model_file', 'category_ids']));
-        if ($request->category_ids) {
-            $product->categories()->attach($request->category_ids);
-        }
+        // --- 1. VALIDATION ---
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category_ids' => 'required|array|min:1',
+            'category_ids.*' => 'exists:categories,id', // Đảm bảo danh mục hợp lệ
+            'price' => 'required|numeric|min:1000',
+            'quantity' => 'nullable|integer|min:0',
+            'description' => 'nullable|string',
+            'images.0' => 'required|image|max:2048', // Bắt buộc ảnh chính, tối đa 2MB
+            'images.*' => 'nullable|image|max:2048', // Các ảnh phụ (nếu có)
+            'model_file' => 'required|file|mimetypes:model/gltf-binary|max:10240', // Bắt buộc model 3D (.glb), tối đa 10MB
+        ], [
+            'name.required' => 'Vui lòng nhập tên sản phẩm.',
+            'category_ids.required' => 'Vui lòng chọn ít nhất một danh mục.',
+            'price.required' => 'Vui lòng nhập giá bán.',
+            'price.min' => 'Giá bán tối thiểu là 1,000 VNĐ.',
+            'quantity.min' => 'Tồn kho không được nhỏ hơn 0.',
+            'images.0.required' => 'Vui lòng chọn ảnh chính cho sản phẩm.',
+            'images.0.image' => 'Ảnh chính phải là định dạng hình ảnh.',
+            'model_file.required' => 'Vui lòng tải lên mô hình 3D (.glb).',
+            'model_file.mimetypes' => 'Mô hình phải có định dạng .glb.',
+        ]);
 
-        // 2. Upload Model 3D
+        // Xử lý mặc định tồn kho
+        $data = $request->except(['images', 'model_file', 'category_ids']);
+        $data['quantity'] = $request->input('quantity', 0); // Gán 0 nếu trống
+
+        // --- 2. LƯU DỮ LIỆU ---
+        $product = Product::create($data);
+        $product->categories()->attach($request->category_ids);
+
         if ($request->hasFile('model_file')) {
             $product->model_url = $this->uploadFile($request->file('model_file'), "model3d/{$product->id}");
             $product->save();
         }
 
-        // 3. Xử lý Ảnh (Tự động dồn hàng)
         $images = $request->file('images', []);
-        $validImages = array_values(array_filter($images)); // Ép mảng [null, file, null, file] thành [file, file]
+        $validImages = array_values(array_filter($images));
 
         foreach ($validImages as $index => $file) {
             $path = $this->uploadFile($file, "product_images/{$product->id}");
             $product->images()->create([
                 'image_url' => $path,
-                'is_primary' => ($index === 0), // Cái đầu tiên tự động thành ảnh chính
-                'display_order' => $index + 1   // Thứ tự 1, 2, 3...
+                'is_primary' => ($index === 0),
+                'display_order' => $index + 1
             ]);
         }
 
@@ -98,46 +121,70 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        // 1. Cập nhật Info & Danh mục
-        $product->update($request->except(['images', 'existing_images', 'model_file', 'clear_model', 'category_ids', '_method']));
-        if ($request->category_ids) {
-            $product->categories()->sync($request->category_ids); // sync tự động xóa cũ thêm mới
+        // --- 1. VALIDATION ---
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category_ids' => 'required|array|min:1',
+            'category_ids.*' => 'exists:categories,id',
+            'price' => 'required|numeric|min:1000',
+            'quantity' => 'nullable|integer|min:0',
+            'description' => 'nullable|string',
+            // Ảnh chính: Bắt buộc phải có file mới HOẶC URL cũ tồn tại ở vị trí 0
+            'images.0' => 'nullable|image|max:2048',
+            'existing_images.0' => 'required_without:images.0',
+            'model_file' => 'nullable|file|mimetypes:model/gltf-binary|max:10240',
+        ], [
+            'name.required' => 'Vui lòng nhập tên sản phẩm.',
+            'category_ids.required' => 'Vui lòng chọn ít nhất một danh mục.',
+            'price.required' => 'Vui lòng nhập giá bán.',
+            'price.min' => 'Giá bán tối thiểu là 1,000 VNĐ.',
+            'quantity.min' => 'Tồn kho không được nhỏ hơn 0.',
+            'existing_images.0.required_without' => 'Vui lòng chọn ảnh chính cho sản phẩm.',
+            'model_file.mimetypes' => 'Mô hình phải có định dạng .glb.',
+        ]);
+
+        // Custom validation logic cho model 3D khi update
+        // Nếu user tick clear_model VÀ không up file mới -> Lỗi
+        if ($request->boolean('clear_model') && !$request->hasFile('model_file')) {
+            return back()->withErrors(['model_file' => 'Sản phẩm bắt buộc phải có mô hình 3D.']);
         }
 
-        // 2. Xử lý Model 3D
+        // --- 2. CẬP NHẬT DỮ LIỆU ---
+        $data = $request->except(['images', 'existing_images', 'model_file', 'clear_model', 'category_ids', '_method']);
+        $data['quantity'] = $request->input('quantity', 0); // Gán 0 nếu trống
+
+        $product->update($data);
+        $product->categories()->sync($request->category_ids);
+
+        // Xử lý Model 3D
         if ($request->hasFile('model_file')) {
-            $this->deleteFile($product->model_url); // Xóa file 3d cũ
+            $this->deleteFile($product->model_url);
             $product->model_url = $this->uploadFile($request->file('model_file'), "model3d/{$product->id}");
             $product->save();
-        } elseif ($request->boolean('clear_model')) { // Nếu user bấm nút (X) xóa model
-            $this->deleteFile($product->model_url);
-            $product->model_url = null;
-            $product->save();
         }
+        // Đã chặn việc xóa model mà không up mới ở bước validate
+        // elseif ($request->boolean('clear_model')) { ... } 
 
-        // 3. Xử lý logic dồn Ảnh phức tạp
+        // Xử lý Ảnh
         $newFiles = $request->file('images', []);
         $existingUrls = $request->input('existing_images', []);
         $finalPaths = [];
 
-        // Duyệt 4 ô trên form, nhặt lấy file mới HOẶC file cũ đang giữ lại
         for ($i = 0; $i < 4; $i++) {
             if (isset($newFiles[$i]) && $newFiles[$i]) {
                 $finalPaths[] = $this->uploadFile($newFiles[$i], "product_images/{$product->id}");
             } elseif (isset($existingUrls[$i]) && $existingUrls[$i]) {
-                // Cắt bỏ phần "http://domain.com/" để lấy lại đường dẫn gốc trong DB
-                $finalPaths[] = str_replace(asset(''), '', $existingUrls[$i]);
+                $cleanUrl = '/' . ltrim(str_replace(asset(''), '', $existingUrls[$i]), '/');
+                $finalPaths[] = $cleanUrl;
             }
         }
 
-        // Xóa những ảnh vật lý trên Server nếu nó không còn nằm trong danh sách cuối cùng
         foreach ($product->images as $oldImage) {
             if (!in_array($oldImage->image_url, $finalPaths)) {
                 $this->deleteFile($oldImage->image_url);
             }
         }
 
-        // Reset bảng DB ảnh và ghi lại thứ tự mới chuẩn (1, 2, 3...)
         $product->images()->delete();
         foreach ($finalPaths as $index => $path) {
             $product->images()->create([
@@ -146,6 +193,42 @@ class ProductController extends Controller
                 'display_order' => $index + 1
             ]);
         }
+
+        return redirect()->back();
+    }
+
+    public function destroy($id)
+    {
+        $product = Product::findOrFail($id);
+
+        // 1. Xóa toàn bộ ảnh vật lý của sản phẩm này
+        foreach ($product->images as $image) {
+            $this->deleteFile($image->image_url);
+        }
+
+        // 2. Xóa Model 3D vật lý (nếu có)
+        if ($product->model_url) {
+            $this->deleteFile($product->model_url);
+        }
+
+        // 3. Xóa các thư mục rỗng chứa ID sản phẩm (tùy chọn để sạch server)
+        $imageFolder = public_path("uploads/product_images/{$id}");
+        $modelFolder = public_path("uploads/model3d/{$id}");
+        if (\Illuminate\Support\Facades\File::isDirectory($imageFolder)) {
+            \Illuminate\Support\Facades\File::deleteDirectory($imageFolder);
+        }
+        if (\Illuminate\Support\Facades\File::isDirectory($modelFolder)) {
+            \Illuminate\Support\Facades\File::deleteDirectory($modelFolder);
+        }
+
+        // 4. Xóa liên kết danh mục trong bảng trung gian (nếu CSDL chưa có tính năng onDelete('cascade'))
+        $product->categories()->detach();
+
+        // 5. Xóa thông tin ảnh trong CSDL
+        $product->images()->delete();
+
+        // 6. Xóa sản phẩm khỏi CSDL
+        $product->delete();
 
         return redirect()->back();
     }
