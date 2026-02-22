@@ -1,46 +1,77 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue'
-import { ref, computed } from 'vue'
+import CategoryModal from './CategoryModal.vue'
+import { Link, router, usePage } from '@inertiajs/vue3'
+import { ref, watch, computed } from 'vue'
+import { debounce } from 'lodash';
+
+/* ================= PROPS TỪ CONTROLLER ================= */
+const props = defineProps({
+  categories: Object,
+  filters: Object,
+  allCategories: Array,
+  totalCategories: Number
+})
+
+const page = usePage()
 
 /* ================= STATS ================= */
-
-const stats = ref([
-  { label: 'Tổng danh mục', value: 6, icon: 'fa-layer-group' },
+const stats = computed(() => [
+  { label: 'Tổng danh mục', value: props.totalCategories || 0, icon: 'fa-layer-group' },
 ])
 
 /* ================= SEARCH ================= */
+const search = ref(props.filters.search || '')
 
-const search = ref('')
+watch(search, debounce((value) => {
+  router.get(route('admin.categories.index'), { search: value }, {
+    preserveState: true, 
+    replace: true,       
+    preserveScroll: true 
+  })
+}, 500))
 
-/* ================= DEMO DATA ================= */
+/* ================= MODAL LOGIC ================= */
+const showModal = ref(false)
+const editMode = ref(false)
+const selectedCategory = ref(null)
 
-const categories = ref([
-  { id: 1, name: 'Rubik 3x3', slug: 'rubik-3x3', products: 24, image: '/assets/img/category-4.jpg' },
-  { id: 2, name: 'Rubik 4x4', slug: 'rubik-4x4', products: 12, image: '/assets/img/category-4.jpg' },
-  { id: 3, name: 'Rubik Mirror', slug: 'rubik-mirror', products: 8, image: '/assets/img/category-4.jpg' },
-])
+const openCreateModal = () => {
+  editMode.value = false
+  selectedCategory.value = null
+  showModal.value = true
+}
 
-const filteredCategories = computed(() =>
-  categories.value.filter(c =>
-    c.name.toLowerCase().includes(search.value.toLowerCase())
-  )
-)
+const openEditModal = (category) => {
+  editMode.value = true
+  selectedCategory.value = category
+  showModal.value = true
+}
+
+const closeModal = () => {
+  showModal.value = false
+  selectedCategory.value = null
+}
+
+const deleteCategory = (id) => {
+  if (confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
+    router.delete(route('admin.categories.destroy', id), {
+      preserveScroll: true,
+      onError: (errors) => {
+        if(errors.message) alert(errors.message);
+      }
+    });
+  }
+}
 </script>
-
 
 <template>
 <AdminLayout title="Quản Lý Danh Mục">
 
 <div class="dashboard">
 
-  <!-- ================= STATS ================= -->
-
   <div class="stats-wrapper">
-    <div
-      v-for="item in stats"
-      :key="item.label"
-      class="stat-card"
-    >
+    <div v-for="item in stats" :key="item.label" class="stat-card">
       <i :class="['fa-solid', item.icon]"></i>
       <div>
         <p class="stat-label">{{ item.label }}</p>
@@ -49,33 +80,24 @@ const filteredCategories = computed(() =>
     </div>
   </div>
 
-  <!-- ================= TABLE CARD ================= -->
-
   <div class="table-card">
-
     <div class="table-header">
-      <h3>
-        <i class="fa-solid fa-layer-group"></i>
-        Danh sách danh mục
-      </h3>
+      <h3 class="section__title"><i class="fa-solid fa-layer-group"></i> Danh sách danh mục</h3>
 
       <div class="header-actions">
-
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Tìm kiếm danh mục..."
-          />
+          <input v-model="search" type="text" class="form__input" placeholder="Tìm kiếm danh mục..." />
         </div>
 
-        <button class="btn-add">
-          <i class="fa-solid fa-plus"></i>
-          Thêm danh mục
+        <button class="btn" @click="openCreateModal">
+          <i class="fa-solid fa-plus"></i> Thêm danh mục
         </button>
-
       </div>
+    </div>
+
+    <div v-if="$page.props.errors.message" class="alert-error">
+        {{ $page.props.errors.message }}
     </div>
 
     <div class="table-wrapper">
@@ -85,49 +107,71 @@ const filteredCategories = computed(() =>
             <th>ID</th>
             <th>Hình ảnh</th>
             <th>Tên danh mục</th>
-            <th>Slug</th>
+            <th>Danh mục cha</th>
             <th>Số sản phẩm</th>
             <th>Hành động</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr v-for="c in filteredCategories" :key="c.id">
+          <tr v-for="c in categories.data" :key="c.id">
             <td>#{{ c.id }}</td>
-
-            <td>
-              <img :src="c.image" class="product-img" />
-            </td>
-
+            <td><img :src="c.image_url" class="product-img" /></td>
             <td class="name-cell">{{ c.name }}</td>
+            <td>
+                <span v-if="c.parent_name" class="badge-parent">{{ c.parent_name }}</span>
+                <span v-else class="text-muted">-</span>
+            </td>
+            <td>{{ c.products_count }}</td>
 
-            <td>{{ c.slug }}</td>
-
-            <td>{{ c.products }}</td>
-
-            <td class="action-cell">
-              <button class="btn-edit">
-                <i class="fa-solid fa-pen"></i>
-              </button>
-              <button class="btn-delete">
-                <i class="fa-solid fa-trash"></i>
-              </button>
+            <td class="table__action-cell">
+                <div class="table__actions">
+                    <button @click="openEditModal(c)" class="action-btn action-btn--edit" aria-label="Sửa">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button @click="deleteCategory(c.id)" class="action-btn action-btn--delete" aria-label="Xóa">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-  </div>
+    <div v-if="categories.last_page > 1" style="display: flex; justify-content: flex-end;">
+        <ul class="pagination">
+        <li v-for="link in categories.links" :key="link.label" :class="['pagination__item', { active: link.active, disabled: !link.url }]">
+            <Link v-if="link.url" :href="link.url" class="pagination__link" preserve-scroll>
+                <span v-if="link.label.includes('Previous')">&laquo;</span>
+                <span v-else-if="link.label.includes('Next')">&raquo;</span>
+                <span v-else v-html="link.label"></span>
+            </Link>
+            <span v-else class="pagination__link">
+                <span v-if="link.label.includes('Previous')">&laquo;</span>
+                <span v-else-if="link.label.includes('Next')">&raquo;</span>
+                <span v-else v-html="link.label"></span>
+            </span>
+        </li>
+        </ul>
+    </div>
 
+  </div>
 </div>
+
+<CategoryModal 
+    :show="showModal" 
+    :editMode="editMode" 
+    :category="selectedCategory" 
+    :allCategories="allCategories"
+    @close="closeModal" 
+/>
 
 </AdminLayout>
 </template>
 
 <style scoped>
-
-/* ================= LAYOUT ================= */
+/* CHỈ GIỮ LẠI NHỮNG CSS ĐẶC THÙ RIÊNG CỦA TRANG ADMIN NÀY (Giống hệt Products/Index.vue) */
 
 .dashboard {
   display: flex;
@@ -135,8 +179,7 @@ const filteredCategories = computed(() =>
   gap: 3rem;
 }
 
-/* ================= STATS ================= */
-
+/* ===== STATS CARD ===== */
 .stats-wrapper {
   display: flex;
   gap: 1.5rem;
@@ -163,7 +206,7 @@ const filteredCategories = computed(() =>
 
 .stat-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
 }
 
 .stat-label {
@@ -177,14 +220,13 @@ const filteredCategories = computed(() =>
   color: #111827;
 }
 
-/* ================= TABLE CARD ================= */
-
+/* ===== BẢNG & LAYOUT BẢNG ===== */
 .table-card {
   background: #ffffff;
   border-radius: 22px;
   padding: 2rem;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.03);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
 }
 
 .table-header {
@@ -194,14 +236,6 @@ const filteredCategories = computed(() =>
   margin-bottom: 2rem;
   gap: 1rem;
 }
-
-.table-header h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* ================= SEARCH ================= */
 
 .header-actions {
   display: flex;
@@ -222,48 +256,19 @@ const filteredCategories = computed(() =>
   color: #9ca3af;
 }
 
+/* Ghi đè padding input vì dùng class .form__input chung */
 .search-box input {
-  width: 100%;
-  padding: 9px 16px 9px 40px;
-  border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  transition: 0.2s;
+  padding-left: 40px !important;
+  border-radius: 999px !important;
 }
-
-.search-box input:focus {
-  border-color: #0f766e;
-  box-shadow: 0 0 0 3px rgba(15,118,110,0.1);
-}
-
-/* ================= BUTTON ================= */
-
-.btn-add {
-  background: #0f766e;
-  color: white;
-  padding: 9px 18px;
-  border-radius: 999px;
-  border: none;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn-add:hover {
-  background: #115e59;
-}
-
-/* ================= TABLE ================= */
 
 table {
   width: 100%;
   border-collapse: collapse;
 }
 
-th,
-td {
-  text-align: center;   /* căn giữa toàn bộ */
+th, td {
+  text-align: center;
   padding: 1rem 0;
   vertical-align: middle;
 }
@@ -279,111 +284,47 @@ tbody tr:hover {
   background: #f9fafb;
 }
 
-/* ================= IMAGE ================= */
-
 .product-img {
   width: 65px;
   height: 65px;
   object-fit: cover;
   border-radius: 14px;
-  margin: auto;   /* căn giữa hình */
+  margin: auto;
 }
 
-/* ================= STOCK ================= */
+/* Các thuộc tính riêng của Category */
+.badge-parent { background-color: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.text-muted { color: #9ca3af; }
+.alert-error { background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; text-align: center; font-weight: 500; }
 
-.low {
-  color: #dc2626;
-  font-weight: 600;
-}
-
-/* ================= ACTION ================= */
-
-.action-cell {
-  display: flex;
-  justify-content: center;   /* KHÔNG còn dồn phải */
-  align-items: center;
-  gap: 10px;
-}
-
-.btn-edit,
-.btn-delete {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  transition: 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-edit {
+/* Kế thừa .action-btn từ app.css nhưng bổ sung màu Sửa/Xóa cho Admin */
+.action-btn--edit:hover {
   background: #fef3c7;
   color: #d97706;
 }
 
-.btn-delete {
+.action-btn--delete:hover {
   background: #fee2e2;
   color: #dc2626;
 }
 
-.btn-edit:hover,
-.btn-delete:hover {
-  transform: scale(1.1);
-}
-
-/* ================= MOBILE FULL ================= */
-
+/* ===== BẢNG RESPONSIVE MOBILE ===== */
 @media (max-width: 768px) {
-  .product-img {
-    margin: 0;           /* bỏ auto */
-  }
-  .action-cell {
-    display: flex;
-    justify-content: flex-end;  /* đẩy hẳn sang phải */
-    width: 100%;
-  }
-  .table-card {
-    padding: 1.2rem;
-  }
-
-  .table-header {
+  .product-img { margin: 0; }
+  .table-card { padding: 1.2rem; }
+  
+  .table-header, .header-actions {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .header-actions {
-    flex-direction: column;
     width: 100%;
   }
 
-  .search-box {
-    width: 100%;        /* FULL WIDTH */
-  }
-
-  .search-box input {
-    width: 100%;
-  }
-
-  .btn-add {
-    width: 100%;
-    justify-content: center;
-  }
-
-  table,
-  thead,
-  tbody,
-  th,
-  td,
-  tr {
+  .search-box { width: 100%; }
+  table, thead, tbody, th, td, tr {
     display: block;
     width: 100%;
   }
-
-  thead {
-    display: none;
-  }
+  thead { display: none; }
 
   tbody tr {
     background: #ffffff;
@@ -396,17 +337,14 @@ tbody tr:hover {
   tbody td {
     position: relative;
     display: flex;
-    justify-content: flex-end;   /* đẩy value sang phải */
+    justify-content: flex-end;
     align-items: center;
-    padding: 0.7rem 1rem 0.7rem 110px; 
+    padding: 0.7rem 1rem 0.7rem 110px;
     border-bottom: 1px solid #f1f5f9;
     text-align: right;
   }
 
-  tbody td:last-child {
-    border-bottom: none;
-  }
-
+  tbody td:last-child { border-bottom: none; }
   tbody td::before {
     position: absolute;
     left: 1rem;
@@ -414,14 +352,12 @@ tbody tr:hover {
     color: #6b7280;
   }
 
-
+  /* Đánh index cột theo bảng Categories (6 cột) */
   tbody td:nth-child(1)::before { content: "ID"; }
   tbody td:nth-child(2)::before { content: "Hình ảnh"; }
-  tbody td:nth-child(3)::before { content: "Tên"; }
-  tbody td:nth-child(4)::before { content: "Giá"; }
-  tbody td:nth-child(5)::before { content: "Tồn kho"; }
-  tbody td:nth-child(6)::before { content: "Đã bán"; }
-  tbody td:nth-child(7)::before { content: "Hành động"; }
-
+  tbody td:nth-child(3)::before { content: "Tên danh mục"; }
+  tbody td:nth-child(4)::before { content: "Danh mục cha"; }
+  tbody td:nth-child(5)::before { content: "Số sản phẩm"; }
+  tbody td:nth-child(6)::before { content: "Hành động"; }
 }
 </style>
