@@ -55,6 +55,18 @@ const closeModal = () => {
   showModal.value = false
   selectedProduct.value = null
 }
+
+const deleteProduct = (id) => {
+    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này không? Tất cả hình ảnh và dữ liệu liên quan sẽ bị xóa vĩnh viễn!')) {
+        router.delete(route('admin.products.destroy', id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Có thể thêm thư viện thông báo (toast) ở đây nếu muốn
+                console.log('Đã xóa thành công');
+            }
+        });
+    }
+}
 </script>
 
 <template>
@@ -115,7 +127,7 @@ const closeModal = () => {
                     <button @click="openEditModal(p)" class="action-btn action-btn--edit" aria-label="Sửa">
                       <i class="fa-solid fa-pen"></i>
                     </button>
-                    <button class="action-btn action-btn--delete" aria-label="Xóa">
+                    <button @click="deleteProduct(p.id)" class="action-btn action-btn--delete" aria-label="Xóa">
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   </div>
