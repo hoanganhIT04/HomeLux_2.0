@@ -196,13 +196,14 @@ Route::get('/orders/{order}/invoice/pdf', [OrderController::class, 'invoicePdf']
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\DashBoardController;
 
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->as('admin.') // 👈 QUAN TRỌNG
     ->group(function () {
 
-        Route::get('/dashboard', [AdminOrderController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard', [DashBoardController::class, 'index'])->name('dashboard');
 
         Route::resource('products', AdminProductController::class);
 
