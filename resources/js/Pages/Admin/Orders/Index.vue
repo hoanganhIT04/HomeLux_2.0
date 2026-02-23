@@ -1,100 +1,79 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue'
-import { ref, computed } from 'vue'
+import OrderDetailModal from './OrderDetailModal.vue'
+import { router } from '@inertiajs/vue3'
+import { ref, watch } from 'vue'
+import { debounce } from 'lodash'
 
-/* ================= STATS ================= */
+const props = defineProps({
+  orders: Object,
+  filters: Object,
+  stats: Object
+})
 
-const stats = ref([
-  { label: 'Chờ duyệt', value: 5, icon: 'fa-clock' },
-  { label: 'Đang giao', value: 3, icon: 'fa-truck' },
-  { label: 'Đã giao', value: 12, icon: 'fa-circle-check' },
-])
+const search = ref(props.filters?.search || '')
+const showModal = ref(false)
+const selectedOrder = ref(null)
 
-/* ================= SEARCH ================= */
+watch(search, debounce((value) => {
+  router.get(route('admin.orders.index'), { search: value }, {
+    preserveState: true,
+    replace: true,
+    preserveScroll: true
+  })
+}, 500))
 
-const search = ref('')
-
-/* ================= DEMO DATA ================= */
-
-const orders = ref([
-  {
-    id: 101,
-    customer: 'Nguyễn Văn A',
-    total: 850000,
-    status: 'pending',
-    date: '11/02/2026'
-  },
-  {
-    id: 102,
-    customer: 'Trần Minh B',
-    total: 1200000,
-    status: 'shipping',
-    date: '10/02/2026'
-  },
-  {
-    id: 103,
-    customer: 'Lê Hoàng C',
-    total: 650000,
-    status: 'completed',
-    date: '09/02/2026'
-  },
-])
-
-const filteredOrders = computed(() =>
-  orders.value.filter(o =>
-    o.customer.toLowerCase().includes(search.value.toLowerCase())
-  )
-)
-
-const getStatusLabel = (status) => {
-  if (status === 'pending') return 'Chờ duyệt'
-  if (status === 'shipping') return 'Đang giao'
-  if (status === 'completed') return 'Đã giao'
+const openDetailModal = (order) => {
+    selectedOrder.value = order
+    showModal.value = true
 }
 
-const getStatusClass = (status) => {
-  if (status === 'pending') return 'status pending'
-  if (status === 'shipping') return 'status shipping'
-  if (status === 'completed') return 'status completed'
+const getStatusLabel = (status) => {
+  const labels = {
+    'pending': 'Chờ duyệt',
+    'paid': 'Đã trả (MoMo)',
+    'delivering': 'Đang giao',
+    'completed': 'Hoàn thành',
+    'cancelled': 'Đã hủy'
+  }
+  return labels[status]
 }
 </script>
 
 <template>
 <AdminLayout title="Quản Lý Đơn Hàng">
-
 <div class="dashboard">
-
-  <!-- ================= STATS ================= -->
-
   <div class="stats-wrapper">
-    <div
-      v-for="item in stats"
-      :key="item.label"
-      class="stat-card"
-    >
-      <i :class="['fa-solid', item.icon]"></i>
+    <div class="stat-card">
+      <i class="fa-solid fa-clock"></i>
       <div>
-        <p class="stat-label">{{ item.label }}</p>
-        <p class="stat-number">{{ item.value }}</p>
+        <p class="stat-label">Chờ duyệt / Đã trả</p>
+        <p class="stat-number">{{ stats.pending }}</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <i class="fa-solid fa-truck"></i>
+      <div>
+        <p class="stat-label">Đang giao</p>
+        <p class="stat-number">{{ stats.delivering }}</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <i class="fa-solid fa-circle-check"></i>
+      <div>
+        <p class="stat-label">Đã hoàn thành</p>
+        <p class="stat-number">{{ stats.completed }}</p>
       </div>
     </div>
   </div>
 
-  <!-- ================= TABLE CARD ================= -->
-
   <div class="table-card">
-
     <div class="table-header">
-      <h3><i class="fa-solid fa-cart-shopping"></i> Danh sách đơn hàng</h3>
-
+      <h3 class="section__title"><i class="fa-solid fa-cart-shopping"></i> Danh sách đơn hàng</h3>
       <div class="header-actions">
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Tìm khách hàng..."
-          />
+          <input v-model="search" type="text" class="form__input" placeholder="Tìm ID đơn hàng hoặc khách..." />
         </div>
       </div>
     </div>
@@ -111,43 +90,48 @@ const getStatusClass = (status) => {
             <th>Hành động</th>
           </tr>
         </thead>
-
         <tbody>
-          <tr v-for="o in filteredOrders" :key="o.id">
+          <tr v-for="o in orders.data" :key="o.id">
             <td>#{{ o.id }}</td>
-
-            <td class="name-cell">{{ o.customer }}</td>
-
-            <td>{{ o.total.toLocaleString() }}đ</td>
-
-            <td>{{ o.date }}</td>
-
+            <td class="name-cell">{{ o.receiver_name }}</td>
+            <td>{{ Number(o.total_price).toLocaleString() }}đ</td>
+            <td>{{ new Date(o.created_at).toLocaleDateString('vi-VN') }}</td>
             <td>
-              <span :class="getStatusClass(o.status)">
+              <span :class="['status', o.status]">
                 {{ getStatusLabel(o.status) }}
               </span>
             </td>
-
-            <td class="action-cell">
-              <button class="btn-edit">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-              <button class="btn-delete">
-                <i class="fa-solid fa-trash"></i>
-              </button>
+            <td class="table__action-cell">
+              <div class="table__actions">
+                <button @click="openDetailModal(o)" class="action-btn action-btn--view" aria-label="Xem chi tiết">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
+    <div v-if="orders.last_page > 1" class="pagination-wrapper">
+        </div>
   </div>
-
 </div>
 
+<OrderDetailModal :show="showModal" :order="selectedOrder" @close="showModal = false" />
 </AdminLayout>
 </template>
 <style scoped>
+/* CSS đồng bộ với Product và app.css */
+.dashboard { display: flex; flex-direction: column; gap: 3rem; }
+.stats-wrapper { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.stat-card { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 16px; padding: 1.5rem; background: #ffffff; border-radius: 18px; border: 1px solid #e5e7eb; transition: 0.3s ease; }
+.status { padding: 5px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.pending { background: #fef3c7; color: #d97706; }
+.paid { background: #dcfce7; color: #16a34a; }
+.delivering { background: #dbeafe; color: #2563eb; }
+.completed { background: #dcfce7; color: #16a34a; }
+.cancelled { background: #fee2e2; color: #dc2626; }
 
 .dashboard {
   display: flex;

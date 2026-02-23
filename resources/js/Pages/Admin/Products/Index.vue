@@ -119,7 +119,7 @@ const deleteProduct = (id) => {
                 <td><img :src="p.image" class="product-img" /></td>
                 <td class="name-cell">{{ p.name }}</td>
                 <td>{{ Number(p.price).toLocaleString() }}đ</td>
-                <td :class="{ low: p.stock <= 5 }">{{ p.stock }}</td>
+                <td :class="{ low: p.stock <= 10 }">{{ p.stock }}</td>
                 <td>{{ p.sold }}</td>
 
                 <td class="table__action-cell">

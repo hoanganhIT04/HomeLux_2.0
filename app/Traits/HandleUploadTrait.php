@@ -8,15 +8,21 @@ use Illuminate\Support\Facades\File;
 trait HandleUploadTrait
 {
     // Upload file và giữ nguyên tên file gốc (ví dụ: 1.jpg)
-    public function uploadFile($file, $folder)
+    public function uploadFile($file, $folder, $customName = null)
     {
-        if (!$file) return null;
+        if (!$file)
+            return null;
 
-        // Lấy đúng tên file bạn tải lên (ví dụ: 2.jpg)
-        // Dùng Str::slug cho phần tên để lỡ có dấu tiếng Việt thì không bị lỗi, giữ nguyên đuôi file
-        $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $extension = $file->getClientOriginalExtension();
-        $filename = Str::slug($name) . '.' . $extension;
+
+        // Nếu truyền tên tùy chỉnh (ví dụ ID: 1) -> File sẽ là 1.jpg
+        // Nếu không truyền -> Giữ nguyên tên file gốc
+        if ($customName) {
+            $filename = $customName . '.' . $extension;
+        } else {
+            $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $filename = Str::slug($name) . '.' . $extension;
+        }
 
         $destinationPath = public_path('uploads/' . $folder);
 
@@ -24,14 +30,13 @@ trait HandleUploadTrait
             File::makeDirectory($destinationPath, 0755, true, true);
         }
 
-        // Chuyển file
+        // Chuyển file vào thư mục public
         $file->move($destinationPath, $filename);
 
         // Đảm bảo tuyệt đối có 1 dấu / ở đầu
         $dbPath = '/uploads/' . $folder . '/' . $filename;
-        return preg_replace('#/+#', '/', $dbPath); 
+        return preg_replace('#/+#', '/', $dbPath);
     }
-
     // Hàm xóa file vật lý
     public function deleteFile($path)
     {

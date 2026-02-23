@@ -194,37 +194,36 @@ Route::get('/orders/{order}/invoice/pdf', [OrderController::class, 'invoicePdf']
 */
 
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\DashBoardController;
 
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->as('admin.') // 👈 QUAN TRỌNG
     ->group(function () {
 
-        Route::get(
-            '/dashboard',
-            fn() =>
-            Inertia::render('Admin/Dashboard')
-        )->name('dashboard');
+        Route::get('/dashboard', [DashBoardController::class, 'index'])->name('dashboard');
 
-        Route::resource('products', \App\Http\Controllers\Admin\ProductController::class);
+        Route::resource('products', AdminProductController::class);
 
-        Route::get(
-            '/categories',
-            fn() =>
-            Inertia::render('Admin/Categories/Index')
-        )->name('categories');
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
-        Route::get(
-            '/orders',
-            fn() =>
-            Inertia::render('Admin/Orders/Index')
-        )->name('orders');
+        Route::resource('categories', AdminCategoryController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
 
-        Route::patch(
-            '/orders/{order}/status',
-            [AdminOrderController::class, 'updateStatus']
-        )->name('orders.updateStatus');
-
+        // Route::get(
+        //     '/orders',
+        //     fn() =>
+        //     Inertia::render('Admin/Orders/Index')
+        // )->name('orders');
+    
+        // Route::patch(
+        //     '/orders/{order}/status',
+        //     [AdminOrderController::class, 'updateStatus']
+        // )->name('orders.updateStatus');
+    
         Route::get(
             '/users',
             fn() =>
