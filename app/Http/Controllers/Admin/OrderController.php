@@ -84,13 +84,12 @@ class OrderController extends Controller
                     Mail::to($order->user->email)
                         ->send(new OrderCancelledMail($order));
                     break;
-
             }
         }
 
         return back()->with('success', 'Cập nhật trạng thái thành công');
     }
-}
+
 
     public function dashboard()
     {
