@@ -46,6 +46,7 @@ class PaymentController extends Controller
 
         $response = Http::post($endpoint, [
             'partnerCode' => $partnerCode,
+            'accessKey'   => $accessKey, // 🔥 THÊM DÒNG NÀY
             'requestId'   => $requestId,
             'amount'      => $amount,
             'orderId'     => $orderId,
@@ -61,7 +62,10 @@ class PaymentController extends Controller
         $data = $response->json();
 
         if (!isset($data['payUrl'])) {
-            Log::error('MoMo error', $data);
+            Log::error('MoMo error', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
 
             return redirect()->route('cart.index')
                 ->with('error', 'Không thể kết nối đến MoMo.');
