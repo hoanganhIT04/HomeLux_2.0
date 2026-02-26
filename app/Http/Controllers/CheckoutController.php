@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\CheckoutStoreRequest;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderCreatedMail;
+use App\Models\Product;
 
 class CheckoutController extends Controller
 {
@@ -103,12 +104,13 @@ class CheckoutController extends Controller
                 ]);
 
                 foreach ($cartItems as $item) {
-                    OrderItem::create([
-                        'order_id'   => $order->id,
-                        'product_id' => $item->product_id,
-                        'price'      => $item->price,
-                        'quantity'   => $item->quantity,
-                    ]);
+                    $product = Product::find($item->product_id);
+
+                    if ($item->quantity > $product->quantity) {
+                        return back()->withErrors([
+                            'stock' => "Sản phẩm {$product->name} chỉ còn {$product->quantity} sản phẩm."
+                        ]);
+                    }
                 }
 
                 CartItem::where('user_id', $user->id)->delete();

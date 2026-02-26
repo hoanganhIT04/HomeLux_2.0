@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderCreatedMail;
+use App\Models\Product;
 
 class PaymentController extends Controller
 {
@@ -106,12 +107,13 @@ class PaymentController extends Controller
             ]);
 
             foreach ($checkoutData['cart_items'] as $item) {
-                OrderItem::create([
-                    'order_id'   => $order->id,
-                    'product_id' => $item['product_id'],
-                    'price'      => $item['price'],
-                    'quantity'   => $item['quantity'],
-                ]);
+
+                $product = Product::find($item['product_id']);
+
+                if ($item['quantity'] > $product->quantity) {
+                    return redirect()->route('cart.index')
+                        ->with('error', "Sản phẩm {$product->name} không đủ tồn kho.");
+                }
             }
 
             CartItem::where('user_id', $checkoutData['user_id'])->delete();
