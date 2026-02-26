@@ -205,6 +205,8 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('/dashboard', [DashBoardController::class, 'index'])->name('dashboard');
 
+        Route::get('/products/low-stock', [AdminProductController::class, 'getLowStock'])->name('products.low_stock');
+
         Route::resource('products', AdminProductController::class);
 
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');

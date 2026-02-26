@@ -58,10 +58,13 @@ class ProductController extends Controller
             ];
         });
 
+        $lowStockCount = Product::where('quantity', '<', 10)->count();
+
         return Inertia::render('Admin/Products/Index', [
             'filters' => ['search' => $request->search],
             'products' => $transformedProducts,
             'categories' => Category::select('id', 'name')->get(),
+            'lowStockCount' => $lowStockCount,
         ]);
     }
     public function store(Request $request)
@@ -230,5 +233,16 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->back();
+    }
+
+    // Hàm API lấy danh sách sản phẩm sắp hết hàng
+    public function getLowStock()
+    {
+        $lowStockProducts = Product::select('id', 'name', 'quantity')
+            ->where('quantity', '<', 10)
+            ->orderBy('quantity', 'asc') // Ưu tiên xếp sản phẩm sắp hết nhất lên đầu
+            ->get();
+
+        return response()->json($lowStockProducts);
     }
 }
