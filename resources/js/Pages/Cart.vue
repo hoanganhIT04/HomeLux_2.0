@@ -22,13 +22,38 @@ const page = usePage()
 
 // 1 SP thì mới được checkout, nếu ko sẽ báo lỗi
 const goCheckout = () => {
+  // Giỏ trống
   if (!props.cartItems.length) {
     alert('Giỏ hàng đang trống. Vui lòng thêm sản phẩm trước khi thanh toán.')
     return
   }
 
+  // Có sản phẩm hết hàng
+  const outOfStockItem = props.cartItems.find(
+    item => (item.product?.quantity ?? 0) <= 0
+  )
+
+  if (outOfStockItem) {
+    alert(`Sản phẩm "${outOfStockItem.product.name}" hiện đã hết hàng. Vui lòng xóa khỏi giỏ trước khi thanh toán.`)
+    return
+  }
+
+  // Có sản phẩm vượt quá tồn kho (double safety)
+  const overStockItem = props.cartItems.find(
+    item => item.quantity > (item.product?.quantity ?? 0)
+  )
+
+  if (overStockItem) {
+    alert(`Sản phẩm "${overStockItem.product.name}" chỉ còn ${overStockItem.product.quantity} sản phẩm.`)
+    return
+  }
+
   router.visit(route('checkout'))
 }
+
+const hasOutOfStock = computed(() =>
+  props.cartItems.some(item => (item.product?.quantity ?? 0) <= 0)
+)
 
 // xóa SP
 const removeItem = async (itemId) => {
@@ -250,7 +275,8 @@ watch(
               </tr>
             </table>
 
-            <a href="#" class="btn flex btn--md cart__checkout-btn" @click.prevent="goCheckout">
+            <a href="#" class="btn flex btn--md cart__checkout-btn" :class="{ 'disabled-btn': hasOutOfStock }"
+              @click.prevent="goCheckout">
               <i class="fi fi-rs-box-alt"></i> Tiến hành thanh toán
             </a>
           </div>
