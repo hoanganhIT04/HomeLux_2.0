@@ -2,7 +2,7 @@
 import MainLayout from '@/Layouts/MainLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { usePage } from '@inertiajs/vue3'
 import { onMounted } from 'vue'
@@ -76,6 +76,25 @@ onMounted(() => {
   }
 })
 
+// check box số lượng SP
+watch(
+  () => props.cartItems,
+  (items) => {
+    items.forEach(item => {
+      const max = item.product?.quantity ?? 0
+
+      if (item.quantity < 1) {
+        item.quantity = 1
+      }
+
+      if (item.quantity > max) {
+        item.quantity = max
+      }
+    })
+  },
+  { deep: true }
+)
+
 </script>
 
 <template>
@@ -128,7 +147,14 @@ onMounted(() => {
                 </td>
 
                 <td>
-                  <input type="number" class="quantity" v-model.number="item.quantity" min="1" />
+                  <template v-if="item.product.quantity > 0">
+                    <input type="number" class="quantity" v-model.number="item.quantity" :min="1"
+                      :max="item.product.quantity" />
+                  </template>
+
+                  <template v-else>
+                    <span class="text-danger">Hết hàng</span>
+                  </template>
                 </td>
 
                 <td>
