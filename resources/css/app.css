@@ -664,6 +664,11 @@
   min-height: auto;
 }
 
+.disabled-btn {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 /* style cho trang wishlist */
 /* ================= ACTION CELL ================= */
 .table__action-cell {
@@ -1113,19 +1118,19 @@
 }
 
 .review__empty {
-    text-align: center;
-    padding: 40px 0;
-    color: #888;
+  text-align: center;
+  padding: 40px 0;
+  color: #888;
 }
 
 .review__empty i {
-    font-size: 40px;
-    margin-bottom: 10px;
-    color: #ccc;
+  font-size: 40px;
+  margin-bottom: 10px;
+  color: #ccc;
 }
 
 .review__empty p {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 /* ================= PAGINATION ================= */
@@ -1562,12 +1567,14 @@ select:disabled {
 
 /* Star active */
 .detail__star.active {
-  color: #facc15; /* vàng đẹp */
+  color: #facc15;
+  /* vàng đẹp */
 }
 
 /* Star empty */
 .detail__star:not(.active) {
-  color: #e5e7eb; /* xám nhạt */
+  color: #e5e7eb;
+  /* xám nhạt */
 }
 
 /* Hover hiệu ứng nhẹ */
@@ -1585,142 +1592,160 @@ select:disabled {
 /* style radio button checkout */
 /* ===== PAYMENT CARD CONTAINER ===== */
 .payment__methods {
-    background: linear-gradient(145deg, #0F5132, #18392B);
-    padding: 28px;
-    border-radius: 20px;
-    color: #fff;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-    position: relative;
-    overflow: hidden;
-    animation: fadeCard 0.6s ease forwards;
-    opacity: 0;
+  background: linear-gradient(145deg, #0F5132, #18392B);
+  padding: 28px;
+  border-radius: 20px;
+  color: #fff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  animation: fadeCard 0.6s ease forwards;
+  opacity: 0;
 }
 
 /* Shine effect */
 .payment__methods::before {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255,255,255,0.08),
-        transparent
-    );
-    transform: rotate(25deg);
-    animation: shine 6s infinite linear;
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(120deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent);
+  transform: rotate(25deg);
+  animation: shine 6s infinite linear;
 }
 
 @keyframes shine {
-    0% { transform: translateX(-100%) rotate(25deg); }
-    100% { transform: translateX(100%) rotate(25deg); }
+  0% {
+    transform: translateX(-100%) rotate(25deg);
+  }
+
+  100% {
+    transform: translateX(100%) rotate(25deg);
+  }
 }
 
 @keyframes fadeCard {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ===== TITLE ===== */
 .payment__title {
-    font-size: 18px;
-    margin-bottom: 22px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 600;
-    color: #1B7D4F;
-    background: #212224;
-    padding: 10px 15px;
-    border-radius: 12px;
+  font-size: 18px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  color: #1B7D4F;
+  background: #212224;
+  padding: 10px 15px;
+  border-radius: 12px;
 }
 
 .payment__title i {
-    color: #1B7D4F;
+  color: #1B7D4F;
 }
 
 /* ===== OPTION ===== */
 .payment__option {
-    margin-bottom: 18px;
+  margin-bottom: 18px;
 }
 
 .payment__option input {
-    display: none;
+  display: none;
 }
 
 /* ===== CARD STYLE ===== */
 .payment__option label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 20px 24px 20px 90px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #066839, #1B7D4F);
-    cursor: pointer;
-    transition: all 0.35s ease;
-    position: relative;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
-    font-weight: 500;
-    letter-spacing: 0.4px;
-    border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 20px 90px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #066839, #1B7D4F);
+  cursor: pointer;
+  transition: all 0.35s ease;
+  position: relative;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  border: 2px solid transparent;
 }
 
 /* ===== CHIP ===== */
 .payment__option label::before {
-    content: "";
-    position: absolute;
-    left: 25px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 45px;
-    height: 30px;
-    border-radius: 6px;
-    background: linear-gradient(145deg, #c0c0c0, #888);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+  content: "";
+  position: absolute;
+  left: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 45px;
+  height: 30px;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #c0c0c0, #888);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Hover */
 .payment__option label:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
 }
 
 /* ===== ACTIVE STATE (SÁNG HƠN) ===== */
-.payment__option input:checked + label {
-    background: linear-gradient(135deg, #1B7D4F, #2EC27E);
-    border: 2px solid #2EC27E;
-    box-shadow:
-        0 20px 50px rgba(0,0,0,0.6),
-        0 0 25px rgba(46,194,126,0.9);
-    transform: scale(1.05);
+.payment__option input:checked+label {
+  background: linear-gradient(135deg, #1B7D4F, #2EC27E);
+  border: 2px solid #2EC27E;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    0 0 25px rgba(46, 194, 126, 0.9);
+  transform: scale(1.05);
 }
 
 
 /* Icon đổi màu khi active */
-.payment__option input:checked + label i {
-    color: #ffffff;
+.payment__option input:checked+label i {
+  color: #ffffff;
 }
 
 /* Animation chọn */
-.payment__option input:checked + label {
-    animation: selectPop 0.25s ease;
+.payment__option input:checked+label {
+  animation: selectPop 0.25s ease;
 }
 
 @keyframes selectPop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1.03); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1.03);
+  }
 }
 
 /* style cho card ví momo footer */
 .payment__img {
-    width: 50%;
-    height: auto;
-    display: block;
-    margin-top: 10px;
+  width: 50%;
+  height: auto;
+  display: block;
+  margin-top: 10px;
 }
 
 /* style disable btn review */
