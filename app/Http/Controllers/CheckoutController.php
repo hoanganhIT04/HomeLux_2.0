@@ -104,15 +104,26 @@ class CheckoutController extends Controller
                 ]);
 
                 foreach ($cartItems as $item) {
+
                     $product = Product::find($item->product_id);
 
                     if ($item->quantity > $product->quantity) {
-                        return back()->withErrors([
-                            'stock' => "Sản phẩm {$product->name} chỉ còn {$product->quantity} sản phẩm."
-                        ]);
+                        throw new \Exception("Sản phẩm {$product->name} không đủ tồn kho.");
                     }
+
+                    // 🔥 TẠO ORDER ITEM
+                    OrderItem::create([
+                        'order_id'   => $order->id,
+                        'product_id' => $product->id,
+                        'price'      => $item->price,
+                        'quantity'   => $item->quantity,
+                    ]);
+
+                    // 🔥 TRỪ TỒN KHO
+                    $product->decrement('quantity', $item->quantity);
                 }
 
+                // 🔥 XOÁ GIỎ
                 CartItem::where('user_id', $user->id)->delete();
 
                 return $order;
