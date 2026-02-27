@@ -111,14 +111,24 @@ class PaymentController extends Controller
                 $product = Product::find($item['product_id']);
 
                 if ($item['quantity'] > $product->quantity) {
-                    return redirect()->route('cart.index')
-                        ->with('error', "Sản phẩm {$product->name} không đủ tồn kho.");
+                    throw new \Exception("Sản phẩm {$product->name} không đủ tồn kho.");
                 }
+
+                // 🔥 TẠO ORDER ITEM
+                OrderItem::create([
+                    'order_id'   => $order->id,
+                    'product_id' => $product->id,
+                    'price'      => $item['price'],
+                    'quantity'   => $item['quantity'],
+                ]);
+
+                // 🔥 TRỪ TỒN KHO
+                $product->decrement('quantity', $item['quantity']);
             }
 
             CartItem::where('user_id', $checkoutData['user_id'])->delete();
 
-            return $order; // 🔥 QUAN TRỌNG
+            return $order;
         });
 
         // 🔥 Load quan hệ để dùng trong mail
