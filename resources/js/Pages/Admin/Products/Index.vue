@@ -53,11 +53,13 @@ const handleMouseLeaveLowStock = () => {
   showLowStockTooltip.value = false;
 }
 
-/* ================= SEARCH ================= */
+/* ================= SEARCH & LỌC ================= */
 const search = ref(props.filters.search || '')
+const filterCategory = ref(props.filters.category || '')
+const sortSold = ref(props.filters.sort_sold || '')
 
-watch(search, debounce((value) => {
-  router.get(route('admin.products.index'), { search: value }, {
+watch([search, filterCategory, sortSold], debounce(([newSearch, newCat, newSort]) => {
+  router.get(route('admin.products.index'), { search: newSearch, category: newCat, sort_sold: newSort }, {
     preserveState: true,
     replace: true,
     preserveScroll: true
@@ -127,6 +129,19 @@ const deleteProduct = (id) => {
           <h3 class="section__title"><i class="fa-solid fa-box"></i> Danh sách sản phẩm</h3>
 
           <div class="header-actions">
+            <!-- Filter Danh Mục -->
+            <select v-model="filterCategory" class="filter-select">
+              <option value="">Tất cả danh mục</option>
+              <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+            </select>
+
+            <!-- Sắp xếp Số lượng bán -->
+            <select v-model="sortSold" class="filter-select">
+              <option value="">Sắp xếp mặc định</option>
+              <option value="desc">Nhiều lượt bán nhất</option>
+              <option value="asc">Ít lượt bán nhất</option>
+            </select>
+
             <div class="search-box">
               <i class="fa-solid fa-magnifying-glass"></i>
               <input v-model="search" type="text" class="form__input" placeholder="Tìm kiếm sản phẩm..." />
@@ -372,8 +387,30 @@ const deleteProduct = (id) => {
   border-radius: 999px !important;
   width: 100%;
   border: 1px solid #e5e7eb;
-  padding: 9px 16px;
+  padding: 8px 16px;
   outline: none;
+}
+
+.search-box input:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+}
+
+.filter-select {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  outline: none;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.filter-select:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
 .search-box input:focus {

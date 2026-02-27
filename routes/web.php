@@ -213,6 +213,7 @@ Route::middleware(['auth', 'admin'])
         Route::get('/orders/status/{status}', [AdminOrderController::class, 'getOrdersByStatus'])->name('orders.by_status');
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
+        Route::get('/categories/tree', [AdminCategoryController::class, 'getCategoryTree'])->name('categories.tree');
         Route::resource('categories', AdminCategoryController::class)
             ->only(['index', 'store', 'update', 'destroy']);
 
