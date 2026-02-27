@@ -44,7 +44,8 @@ const logout = () => {
                     <span>Đơn Hàng</span>
                 </Link>
 
-                <Link :href="route('admin.users')" :class="['menu-item', { active: route().current('admin.users') }]">
+                <Link :href="route('admin.users.index')"
+                    :class="['menu-item', { active: route().current('admin.users.*') }]">
                     <i class="fa-solid fa-users"></i>
                     <span>Người Dùng</span>
                 </Link>

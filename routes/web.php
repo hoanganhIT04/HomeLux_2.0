@@ -197,12 +197,12 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashBoardController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
-    ->as('admin.') // 👈 QUAN TRỌNG
+    ->as('admin.')
     ->group(function () {
-
         Route::get('/dashboard', [DashBoardController::class, 'index'])->name('dashboard');
 
         Route::get('/products/low-stock', [AdminProductController::class, 'getLowStock'])->name('products.low_stock');
@@ -210,27 +210,14 @@ Route::middleware(['auth', 'admin'])
         Route::resource('products', AdminProductController::class);
 
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/status/{status}', [AdminOrderController::class, 'getOrdersByStatus'])->name('orders.by_status');
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
         Route::resource('categories', AdminCategoryController::class)
             ->only(['index', 'store', 'update', 'destroy']);
 
-        // Route::get(
-        //     '/orders',
-        //     fn() =>
-        //     Inertia::render('Admin/Orders/Index')
-        // )->name('orders');
-    
-        // Route::patch(
-        //     '/orders/{order}/status',
-        //     [AdminOrderController::class, 'updateStatus']
-        // )->name('orders.updateStatus');
-    
-        Route::get(
-            '/users',
-            fn() =>
-            Inertia::render('Admin/Users/Index')
-        )->name('users');
+        Route::resource('users', AdminUserController::class)
+            ->only(['index', 'destroy']);
     });
 
 /*
