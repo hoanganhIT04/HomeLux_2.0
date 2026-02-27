@@ -1,220 +1,170 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue'
-import { ref, computed } from 'vue'
+import { Link, router } from '@inertiajs/vue3'
+import { ref, watch, computed } from 'vue'
+import { debounce } from 'lodash'
+
+/* ================= PROPS ================= */
+const props = defineProps({
+  users: Object,
+  filters: Object,
+  stats: Object
+})
 
 /* ================= STATS ================= */
-
-const stats = ref([
-  { label: 'Tổng người dùng', value: 120, icon: 'fa-users' },
-  { label: 'Đang hoạt động', value: 98, icon: 'fa-user-check' },
-  { label: 'Bị khóa', value: 22, icon: 'fa-user-slash' },
+const stats = computed(() => [
+  { label: 'Tổng người dùng', value: props.stats.total || 0, icon: 'fa-users' },
+  { label: 'Khách hàng', value: props.stats.user || 0, icon: 'fa-user' },
+  { label: 'Quản trị viên', value: props.stats.admin || 0, icon: 'fa-user-tie' },
 ])
 
 /* ================= SEARCH ================= */
+const search = ref(props.filters?.search || '')
 
-const search = ref('')
+watch(search, debounce((value) => {
+  router.get(route('admin.users.index'), { search: value }, {
+    preserveState: true,
+    replace: true,
+    preserveScroll: true
+  })
+}, 500))
 
-/* ================= DEMO DATA ================= */
-
-const users = ref([
-  {
-    id: 1,
-    name: 'Nguyễn Văn A',
-    email: 'vana@gmail.com',
-    role: 'customer',
-    status: 'active',
-    created_at: '01/02/2026'
-  },
-  {
-    id: 2,
-    name: 'Trần Minh B',
-    email: 'minhb@gmail.com',
-    role: 'staff',
-    status: 'inactive',
-    created_at: '28/01/2026'
-  },
-  {
-    id: 3,
-    name: 'Lê Hoàng C',
-    email: 'hoangc@gmail.com',
-    role: 'manager',
-    status: 'active',
-    created_at: '20/01/2026'
-  },
-])
-
-const filteredUsers = computed(() =>
-  users.value.filter(u =>
-    u.name.toLowerCase().includes(search.value.toLowerCase())
-  )
-)
+/* ================= ACTIONS ================= */
+const deleteUser = (id) => {
+  if (confirm('Bạn có chắc chắn muốn xóa người dùng này không? Hành động này không thể hoàn tác!')) {
+    router.delete(route('admin.users.destroy', id), {
+      preserveScroll: true,
+      onError: (errors) => {
+        if (errors.message) alert(errors.message);
+      }
+    });
+  }
+}
 
 /* ================= FORMAT ================= */
-
 const getRoleLabel = (role) => {
-  if (role === 'customer') return 'Khách hàng'
-  if (role === 'staff') return 'Nhân viên'
-  if (role === 'manager') return 'Quản lý'
+  if (role === 'user') return 'Khách hàng'
+  if (role === 'admin') return 'Quản trị viên'
+  return role
 }
 
 const getRoleClass = (role) => {
-  if (role === 'customer') return 'badge customer'
-  if (role === 'staff') return 'badge staff'
-  if (role === 'manager') return 'badge manager'
-}
-
-const getStatusLabel = (status) => {
-  return status === 'active' ? 'Hoạt động' : 'Bị khóa'
-}
-
-const getStatusClass = (status) => {
-  return status === 'active'
-    ? 'badge active'
-    : 'badge inactive'
+  if (role === 'user') return 'customer' // Dùng class "customer"
+  if (role === 'admin') return 'manager' // Dùng class "manager" (vàng)
+  return 'staff'
 }
 </script>
+
 <template>
-<AdminLayout title="Quản Lý Người Dùng">
+  <AdminLayout title="Quản Lý Người Dùng">
+    <div class="dashboard">
 
-<div class="dashboard">
-
-  <!-- ================= STATS ================= -->
-
-  <div class="stats-wrapper">
-    <div
-      v-for="item in stats"
-      :key="item.label"
-      class="stat-card"
-    >
-      <i :class="['fa-solid', item.icon]"></i>
-      <div>
-        <p class="stat-label">{{ item.label }}</p>
-        <p class="stat-number">{{ item.value }}</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= TABLE CARD ================= -->
-
-  <div class="table-card">
-
-    <div class="table-header">
-      <h3><i class="fa-solid fa-users"></i> Danh sách người dùng</h3>
-
-      <div class="header-actions">
-        <div class="search-box">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Tìm kiếm người dùng..."
-          />
+      <!-- ================= STATS ================= -->
+      <div class="stats-wrapper">
+        <div v-for="item in stats" :key="item.label" class="stat-card">
+          <i :class="['fa-solid', item.icon]"></i>
+          <div>
+            <p class="stat-label">{{ item.label }}</p>
+            <p class="stat-number">{{ item.value }}</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Tên</th>
-            <th>Email</th>
-            <th>Vai trò</th>
-            <th>Trạng thái</th>
-            <th>Ngày tạo</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
+      <!-- ================= TABLE CARD ================= -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3 class="section__title"><i class="fa-solid fa-users"></i> Danh sách người dùng</h3>
+          <div class="header-actions">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input v-model="search" type="text" class="form__input" placeholder="Tìm tên hoặc email..." />
+            </div>
+          </div>
+        </div>
 
-        <tbody>
-          <tr v-for="u in filteredUsers" :key="u.id">
-            <td>#{{ u.id }}</td>
+        <!-- Báo lỗi nếu có -->
+        <div v-if="$page.props.errors.message" class="alert-error" style="margin-bottom: 20px; color: red;">
+          {{ $page.props.errors.message }}
+        </div>
 
-            <td>{{ u.name }}</td>
+        <div v-if="$page.props.flash && $page.props.flash.error" class="alert-error"
+          style="padding: 10px; background: #fee2e2; color: #dc2626; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
+          {{ $page.props.flash.error }}
+        </div>
 
-            <td>{{ u.email }}</td>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Tên</th>
+                <th>Email</th>
+                <th>Vai trò</th>
+                <th>Ngày tạo</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
 
-            <td>
-              <span :class="getRoleClass(u.role)">
-                {{ getRoleLabel(u.role) }}
+            <tbody>
+              <tr v-for="u in users.data" :key="u.id">
+                <td>#{{ u.id }}</td>
+                <td class="name-cell">{{ u.name }}</td>
+                <td>{{ u.email }}</td>
+                <td>
+                  <span :class="['status', getRoleClass(u.role)]">
+                    {{ getRoleLabel(u.role) }}
+                  </span>
+                </td>
+                <td>{{ new Date(u.created_at).toLocaleDateString('vi-VN') }}</td>
+                <td class="table__action-cell">
+                  <div class="table__actions">
+                    <!-- Chỉ giữ lại nút xóa -->
+                    <button @click="deleteUser(u.id)" class="action-btn action-btn--delete" aria-label="Xóa">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="!users.data || users.data.length === 0">
+                <td colspan="6" style="padding: 20px; color: #6b7280;">Không tìm thấy người dùng nào.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="users.last_page > 1" style="display: flex; justify-content: flex-end; margin-top: 20px;">
+          <ul class="pagination">
+            <li v-for="link in users.links" :key="link.label"
+              :class="['pagination__item', { active: link.active, disabled: !link.url }]">
+              <Link v-if="link.url" :href="link.url" class="pagination__link" preserve-scroll>
+                <span v-if="link.label.includes('Previous')">&laquo;</span>
+                <span v-else-if="link.label.includes('Next')">&raquo;</span>
+                <span v-else v-html="link.label"></span>
+              </Link>
+              <span v-else class="pagination__link">
+                <span v-if="link.label.includes('Previous')">&laquo;</span>
+                <span v-else-if="link.label.includes('Next')">&raquo;</span>
+                <span v-else v-html="link.label"></span>
               </span>
-            </td>
+            </li>
+          </ul>
+        </div>
 
-            <td>
-              <span :class="getStatusClass(u.status)">
-                {{ getStatusLabel(u.status) }}
-              </span>
-            </td>
-
-            <td>{{ u.created_at }}</td>
-
-            <td class="action-cell">
-              <button class="btn-edit">
-                <i class="fa-solid fa-pen"></i>
-              </button>
-              <button class="btn-delete">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </td>
-
-          </tr>
-        </tbody>
-      </table>
+      </div>
     </div>
-
-  </div>
-
-</div>
-
-</AdminLayout>
+  </AdminLayout>
 </template>
-<style scoped>
 
+<style scoped>
+/* CHỈ GIỮ LẠI NHỮNG CSS CƠ BẢN HOẶC ĐẶC THÙ, PHẦN CÒN LẠI DÙNG CỦA APP.CSS */
 .dashboard {
   display: flex;
   flex-direction: column;
   gap: 3rem;
 }
-/* Badge chung */
-.badge {
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
 
-/* Role */
-.customer {
-  background: #e0f2fe;
-  color: #0284c7;
-}
-
-.staff {
-  background: #ede9fe;
-  color: #7c3aed;
-}
-
-.manager {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-/* Status */
-.active {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.inactive {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-/* Giữ nguyên toàn bộ CSS layout từ trang Orders */
-
-/* ================= STATS ================= */
-
+/* ===== STATS CARD ===== */
 .stats-wrapper {
   display: flex;
   gap: 1.5rem;
@@ -241,7 +191,7 @@ const getStatusClass = (status) => {
 
 .stat-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
 }
 
 .stat-label {
@@ -255,14 +205,13 @@ const getStatusClass = (status) => {
   color: #111827;
 }
 
-/* ================= TABLE CARD ================= */
-
+/* ===== BẢNG & LAYOUT ===== */
 .table-card {
   background: #ffffff;
   border-radius: 22px;
   padding: 2rem;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.03);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
 }
 
 .table-header {
@@ -278,8 +227,6 @@ const getStatusClass = (status) => {
   gap: 1rem;
   align-items: center;
 }
-
-/* ================= SEARCH ================= */
 
 .search-box {
   position: relative;
@@ -300,14 +247,13 @@ const getStatusClass = (status) => {
   border-radius: 999px;
   border: 1px solid #e5e7eb;
   transition: 0.2s;
+  outline: none;
 }
 
 .search-box input:focus {
   border-color: #0f766e;
-  box-shadow: 0 0 0 3px rgba(15,118,110,0.1);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
-
-/* ================= TABLE ================= */
 
 table {
   width: 100%;
@@ -332,8 +278,7 @@ tbody tr:hover {
   background: #f9fafb;
 }
 
-/* ================= STATUS BADGE ================= */
-
+/* Badge màu */
 .status {
   padding: 5px 12px;
   border-radius: 999px;
@@ -341,78 +286,32 @@ tbody tr:hover {
   font-weight: 600;
 }
 
-.pending {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-.shipping {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-.completed {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-/* ================= ACTION ================= */
-
-.action-cell {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
-
-.btn-edit,
-.btn-delete {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  transition: 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-edit {
+.customer {
   background: #e0f2fe;
   color: #0284c7;
 }
 
-.btn-delete {
+.manager {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* Kế thừa từ class app.css .action-btn nhưng tự tuỳ biến nút xóa */
+.action-btn--delete:hover {
   background: #fee2e2;
   color: #dc2626;
 }
 
-.btn-edit:hover,
-.btn-delete:hover {
-  transform: scale(1.1);
-}
-
-/* ================= MOBILE ================= */
-
+/* Responsive Table như các trang khác */
 @media (max-width: 768px) {
-
-  .action-cell {
-    display: flex;
-    justify-content: flex-end;  /* đẩy hẳn sang phải */
-    width: 100%;
-  }
   .table-card {
     padding: 1.2rem;
   }
 
-  .table-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
+  .table-header,
   .header-actions {
     flex-direction: column;
+    align-items: stretch;
     width: 100%;
   }
 
@@ -463,12 +362,28 @@ tbody tr:hover {
     color: #6b7280;
   }
 
-  tbody td:nth-child(1)::before { content: "ID"; }
-  tbody td:nth-child(2)::before { content: "Khách hàng"; }
-  tbody td:nth-child(3)::before { content: "Tổng tiền"; }
-  tbody td:nth-child(4)::before { content: "Ngày đặt"; }
-  tbody td:nth-child(5)::before { content: "Trạng thái"; }
-  tbody td:nth-child(6)::before { content: "Hành động"; }
+  tbody td:nth-child(1)::before {
+    content: "ID";
+  }
 
+  tbody td:nth-child(2)::before {
+    content: "Tên";
+  }
+
+  tbody td:nth-child(3)::before {
+    content: "Email";
+  }
+
+  tbody td:nth-child(4)::before {
+    content: "Vai trò";
+  }
+
+  tbody td:nth-child(5)::before {
+    content: "Ngày tạo";
+  }
+
+  tbody td:nth-child(6)::before {
+    content: "Hành động";
+  }
 }
 </style>

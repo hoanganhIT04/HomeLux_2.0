@@ -74,20 +74,26 @@ class OrderController extends Controller
                 case 'cancelled':
                     Mail::to($order->user->email)->send(new OrderCancelledMail($order));
                     break;
-
-                case 'completed':
-                    Mail::to($order->user->email)
-                        ->send(new OrderCompletedMail($order));
-                    break;
-
-                case 'cancelled':
-                    Mail::to($order->user->email)
-                        ->send(new OrderCancelledMail($order));
-                    break;
             }
         }
 
         return back()->with('success', 'Cập nhật trạng thái thành công');
+    }
+
+    public function getOrdersByStatus($status)
+    {
+        if ($status === 'pending') {
+            $statuses = ['pending', 'paid'];
+        } else {
+            $statuses = [$status];
+        }
+
+        $orders = Order::with(['user', 'items.product.primaryImage'])
+            ->whereIn('status', $statuses)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return response()->json($orders);
     }
 
 
