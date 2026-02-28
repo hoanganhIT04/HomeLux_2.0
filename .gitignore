@@ -5,10 +5,10 @@
 .env.production
 .phpactor.json
 .phpunit.result.cache
-/public/uploads/*
-!/public/uploads/.gitignore
-/public/uploads/model3d
-/public/uploads/product_images
+# /public/uploads/*
+# !/public/uploads/.gitignore
+# /public/uploads/model3d
+# /public/uploads/product_images
 /.fleet
 /.idea
 /.nova
