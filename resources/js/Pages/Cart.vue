@@ -102,23 +102,22 @@ onMounted(() => {
 })
 
 // check box số lượng SP
-watch(
-  () => props.cartItems,
-  (items) => {
-    items.forEach(item => {
-      const max = item.product?.quantity ?? 0
+const clampQuantity = (item) => {
+  const max = item.product?.quantity ?? 0
 
-      if (item.quantity < 1) {
-        item.quantity = 1
-      }
+  if (max <= 0) {
+    item.quantity = 0
+    return
+  }
 
-      if (item.quantity > max) {
-        item.quantity = max
-      }
-    })
-  },
-  { deep: true }
-)
+  if (item.quantity < 1) {
+    item.quantity = 1
+  }
+
+  if (item.quantity > max) {
+    item.quantity = max
+  }
+}
 
 </script>
 
@@ -173,8 +172,14 @@ watch(
 
                 <td>
                   <template v-if="item.product.quantity > 0">
-                    <input type="number" class="quantity" v-model.number="item.quantity" :min="1"
-                      :max="item.product.quantity" />
+                    <input
+                      type="number"
+                      class="quantity"
+                      :min="1"
+                      :max="item.product.quantity"
+                      v-model.number="item.quantity"
+                      @input="clampQuantity(item)"
+                    />
                   </template>
 
                   <template v-else>
