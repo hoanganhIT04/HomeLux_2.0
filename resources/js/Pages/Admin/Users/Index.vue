@@ -304,86 +304,38 @@ tbody tr:hover {
 
 /* Responsive Table như các trang khác */
 @media (max-width: 768px) {
-  .table-card {
-    padding: 1.2rem;
-  }
+  .table-card { padding: 1.2rem; }
+  .table-header, .header-actions { flex-direction: column; align-items: stretch; width: 100%; }
+  .search-box { width: 100%; }
 
-  .table-header,
-  .header-actions {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-  }
-
-  .search-box {
-    width: 100%;
-  }
-
-  table,
-  thead,
-  tbody,
-  th,
-  td,
-  tr {
-    display: block;
-    width: 100%;
-  }
-
-  thead {
-    display: none;
-  }
+  table, thead, tbody, th, td, tr { display: block; width: 100%; }
+  thead { display: none; }
 
   tbody tr {
-    background: #ffffff;
-    padding: 1.2rem;
-    border-radius: 18px;
-    margin-bottom: 1.5rem;
+    background: #ffffff; padding: 1rem; border-radius: 12px;
+    margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
   }
 
   tbody td {
-    position: relative;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0.7rem 1rem 0.7rem 110px;
-    border-bottom: 1px solid #f1f5f9;
-    text-align: right;
+    position: relative; display: flex; justify-content: space-between; align-items: center;
+    padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9; text-align: right; font-size: 0.9rem;
   }
 
-  tbody td:last-child {
-    border-bottom: none;
-  }
+  tbody td:last-child { border-bottom: none; }
 
-  tbody td::before {
-    position: absolute;
-    left: 1rem;
-    font-weight: 600;
-    color: #6b7280;
-  }
+  tbody td::before { content: attr(data-label); font-weight: 600; color: #6b7280; text-align: left; padding-right: 15px; }
 
-  tbody td:nth-child(1)::before {
-    content: "ID";
-  }
+  tbody td:nth-child(1)::before { content: "ID"; }
+  tbody td:nth-child(2)::before { content: "Tên"; }
+  tbody td:nth-child(3)::before { content: "Email"; }
+  tbody td:nth-child(4)::before { content: "Vai trò"; }
+  tbody td:nth-child(5)::before { content: "Ngày tạo"; }
 
-  tbody td:nth-child(2)::before {
-    content: "Tên";
-  }
-
-  tbody td:nth-child(3)::before {
-    content: "Email";
-  }
-
-  tbody td:nth-child(4)::before {
-    content: "Vai trò";
-  }
-
-  tbody td:nth-child(5)::before {
-    content: "Ngày tạo";
-  }
-
-  tbody td:nth-child(6)::before {
-    content: "Hành động";
-  }
+  /* Hành động */
+  tbody td:nth-child(6) { justify-content: flex-end; padding-top: 1rem; margin-top: 0.5rem; }
+  tbody td:nth-child(6)::before { display: none; }
+  
+  .table__actions { display: flex; gap: 6px; }
 }
 </style>

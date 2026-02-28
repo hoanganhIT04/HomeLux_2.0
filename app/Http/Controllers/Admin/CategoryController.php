@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Traits\HandleUploadTrait;
 use Illuminate\Support\Str;
+use App\Http\Requests\Admin\StoreCategoryRequest;
+use App\Http\Requests\Admin\UpdateCategoryRequest;
 
 class CategoryController extends Controller
 {
@@ -15,7 +17,7 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        $query = Category::with('parent')->withCount('products'); 
+        $query = Category::with('parent')->withCount('products');
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
@@ -32,7 +34,7 @@ class CategoryController extends Controller
                 'parent_name' => $cat->parent ? $cat->parent->name : null,
                 'products_count' => $cat->products_count ?? 0,
                 'image_url' => $cat->image_url ? asset($cat->image_url) : asset('assets/img/default-category.jpg'),
-                'raw_image' => $cat->image_url 
+                'raw_image' => $cat->image_url
             ];
         });
 
@@ -42,31 +44,19 @@ class CategoryController extends Controller
         return Inertia::render('Admin/Categories/Index', [
             'filters' => ['search' => $request->search],
             'categories' => $transformedCategories,
-            'allCategories' => $allCategories, 
+            'allCategories' => $allCategories,
             'totalCategories' => $totalCategories,
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
-            'parent_id' => 'nullable|exists:categories,id',
-            'image' => 'required|image|max:2048', 
-        ], [
-            'name.required' => 'Vui lòng nhập tên danh mục.',
-            'name.unique' => 'Tên danh mục này đã tồn tại.',
-            'image.required' => 'Vui lòng chọn ảnh đại diện.',
-            'image.image' => 'File tải lên phải là hình ảnh.'
-        ]);
-
         $data = [
             'name' => $request->name,
             'slug' => Str::slug($request->name),
             'parent_id' => $request->parent_id,
         ];
 
-        // Upload ảnh giữ nguyên tên gốc vào thư mục uploads/category_image
         if ($request->hasFile('image')) {
             $data['image_url'] = $this->uploadFile($request->file('image'), 'category_image');
         }
@@ -76,21 +66,9 @@ class CategoryController extends Controller
         return redirect()->back();
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateCategoryRequest $request, $id)
     {
         $category = Category::findOrFail($id);
-
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $id,
-            'parent_id' => 'nullable|exists:categories,id|not_in:' . $id, 
-            'image' => 'nullable|image|max:2048',
-            'existing_image' => 'required_without:image', 
-        ], [
-            'name.required' => 'Vui lòng nhập tên danh mục.',
-            'name.unique' => 'Tên danh mục này đã tồn tại.',
-            'parent_id.not_in' => 'Danh mục cha không hợp lệ.',
-            'existing_image.required_without' => 'Vui lòng chọn ảnh đại diện.',
-        ]);
 
         $data = [
             'name' => $request->name,
@@ -116,12 +94,18 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
 
         if (Category::where('parent_id', $id)->exists()) {
-             return redirect()->back()->withErrors(['message' => 'Không thể xóa vì chứa danh mục con!']);
+            return redirect()->back()->withErrors(['message' => 'Không thể xóa vì chứa danh mục con!']);
         }
 
         $this->deleteFile($category->image_url);
         $category->delete();
 
         return redirect()->back();
+    }
+
+    public function getCategoryTree()
+    {
+        $categories = Category::with('children')->whereNull('parent_id')->orderBy('name')->get();
+        return response()->json($categories);
     }
 }

@@ -148,4 +148,13 @@ const closeModal = () => emit('close')
 .btn-submit { background: #0f766e; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 600; }
 .btn-cancel { background: #fff; border: 1px solid #ddd; padding: 10px 20px; border-radius: 8px; }
 .tiny-text { font-size: 11px; color: #888; }
+
+/* Thay đổi Modal trên Mobile */
+@media (max-width: 768px) {
+    .modal-overlay { padding: 10px; }
+    .modal-card { width: 100%; max-width: 100%; border-radius: 8px; max-height: 95vh; }
+    .modal-grid { grid-template-columns: 1fr; gap: 20px; }
+    .modal-body { padding: 15px; }
+    .modal-footer { padding: 15px; }
+}
 </style>

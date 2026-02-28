@@ -5,6 +5,8 @@ import { Link, router, usePage } from '@inertiajs/vue3'
 import { ref, watch, computed } from 'vue'
 import { debounce } from 'lodash';
 
+import axios from 'axios'
+
 /* ================= PROPS TỪ CONTROLLER ================= */
 const props = defineProps({
   categories: Object,
@@ -17,17 +19,50 @@ const page = usePage()
 
 /* ================= STATS ================= */
 const stats = computed(() => [
-  { label: 'Tổng danh mục', value: props.totalCategories || 0, icon: 'fa-layer-group' },
+  { label: 'Tổng danh mục', value: props.totalCategories || 0, icon: 'fa-layer-group', key: 'tree' },
 ])
+
+/* ================= TOOLTIP TREE ================= */
+const categoryTree = ref([])
+const showTooltip = ref(false)
+const loadingTree = ref(false)
+
+const loadCategoryTree = async () => {
+  if (categoryTree.value.length === 0) {
+    loadingTree.value = true
+    try {
+      const response = await axios.get(route('admin.categories.tree'))
+      categoryTree.value = response.data
+    } catch (error) {
+      console.error('Lỗi lấy cây danh mục:', error)
+    } finally {
+      loadingTree.value = false
+    }
+  }
+}
+
+let tooltipTimeout = null;
+
+const handleMouseEnter = () => {
+  if (tooltipTimeout) clearTimeout(tooltipTimeout);
+  showTooltip.value = true;
+  loadCategoryTree();
+}
+
+const handleMouseLeave = () => {
+  tooltipTimeout = setTimeout(() => {
+    showTooltip.value = false;
+  }, 300);
+}
 
 /* ================= SEARCH ================= */
 const search = ref(props.filters.search || '')
 
 watch(search, debounce((value) => {
   router.get(route('admin.categories.index'), { search: value }, {
-    preserveState: true, 
-    replace: true,       
-    preserveScroll: true 
+    preserveState: true,
+    replace: true,
+    preserveScroll: true
   })
 }, 500))
 
@@ -58,7 +93,7 @@ const deleteCategory = (id) => {
     router.delete(route('admin.categories.destroy', id), {
       preserveScroll: true,
       onError: (errors) => {
-        if(errors.message) alert(errors.message);
+        if (errors.message) alert(errors.message);
       }
     });
   }
@@ -66,108 +101,126 @@ const deleteCategory = (id) => {
 </script>
 
 <template>
-<AdminLayout title="Quản Lý Danh Mục">
+  <AdminLayout title="Quản Lý Danh Mục">
 
-<div class="dashboard">
+    <div class="dashboard">
 
-  <div class="stats-wrapper">
-    <div v-for="item in stats" :key="item.label" class="stat-card">
-      <i :class="['fa-solid', item.icon]"></i>
-      <div>
-        <p class="stat-label">{{ item.label }}</p>
-        <p class="stat-number">{{ item.value }}</p>
+      <div class="stats-wrapper">
+        <div v-for="item in stats" :key="item.label" class="stat-card"
+          @mouseenter="item.key === 'tree' ? handleMouseEnter() : null"
+          @mouseleave="item.key === 'tree' ? handleMouseLeave() : null">
+          <i :class="['fa-solid', item.icon]"></i>
+          <div>
+            <p class="stat-label">{{ item.label }}</p>
+            <p class="stat-number">{{ item.value }}</p>
+          </div>
+
+          <!-- Dropdown Cây Danh Mục -->
+          <div v-if="item.key === 'tree' && showTooltip" class="status-dropdown">
+            <div v-if="loadingTree" class="loading-text">Đang tải...</div>
+            <div v-else-if="categoryTree.length === 0" class="empty-text">Chưa có danh mục nào</div>
+            <ul v-else class="tree-list">
+              <template v-for="parent in categoryTree" :key="parent.id">
+                <!-- Cha -->
+                <li class="tree-parent" @click.stop="openEditModal(parent)">
+                  <span class="cat-name">{{ parent.name }}</span>
+                </li>
+                <!-- Con (Thụt lề) -->
+                <li v-for="child in parent.children" :key="child.id" class="tree-child"
+                  @click.stop="openEditModal(child)">
+                  <i class="fa-solid fa-arrow-turn-up fa-rotate-90 child-icon"></i>
+                  <span class="cat-name child-name">{{ child.name }}</span>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="table-card">
-    <div class="table-header">
-      <h3 class="section__title"><i class="fa-solid fa-layer-group"></i> Danh sách danh mục</h3>
+      <div class="table-card">
+        <div class="table-header">
+          <h3 class="section__title"><i class="fa-solid fa-layer-group"></i> Danh sách danh mục</h3>
 
-      <div class="header-actions">
-        <div class="search-box">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input v-model="search" type="text" class="form__input" placeholder="Tìm kiếm danh mục..." />
+          <div class="header-actions">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input v-model="search" type="text" class="form__input" placeholder="Tìm kiếm danh mục..." />
+            </div>
+
+            <button class="btn" @click="openCreateModal">
+              <i class="fa-solid fa-plus"></i> Thêm danh mục
+            </button>
+          </div>
         </div>
 
-        <button class="btn" @click="openCreateModal">
-          <i class="fa-solid fa-plus"></i> Thêm danh mục
-        </button>
+        <div v-if="$page.props.errors.message" class="alert-error">
+          {{ $page.props.errors.message }}
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Hình ảnh</th>
+                <th>Tên danh mục</th>
+                <th>Danh mục cha</th>
+                <th>Số sản phẩm</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="c in categories.data" :key="c.id">
+                <td>#{{ c.id }}</td>
+                <td><img :src="c.image_url" class="product-img" /></td>
+                <td class="name-cell">{{ c.name }}</td>
+                <td>
+                  <span v-if="c.parent_name" class="badge-parent">{{ c.parent_name }}</span>
+                  <span v-else class="text-muted">-</span>
+                </td>
+                <td>{{ c.products_count }}</td>
+
+                <td class="table__action-cell">
+                  <div class="table__actions">
+                    <button @click="openEditModal(c)" class="action-btn action-btn--edit" aria-label="Sửa">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button @click="deleteCategory(c.id)" class="action-btn action-btn--delete" aria-label="Xóa">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div v-if="categories.last_page > 1" style="display: flex; justify-content: flex-end;">
+          <ul class="pagination">
+            <li v-for="link in categories.links" :key="link.label"
+              :class="['pagination__item', { active: link.active, disabled: !link.url }]">
+              <Link v-if="link.url" :href="link.url" class="pagination__link" preserve-scroll>
+                <span v-if="link.label.includes('Previous')">&laquo;</span>
+                <span v-else-if="link.label.includes('Next')">&raquo;</span>
+                <span v-else v-html="link.label"></span>
+              </Link>
+              <span v-else class="pagination__link">
+                <span v-if="link.label.includes('Previous')">&laquo;</span>
+                <span v-else-if="link.label.includes('Next')">&raquo;</span>
+                <span v-else v-html="link.label"></span>
+              </span>
+            </li>
+          </ul>
+        </div>
+
       </div>
     </div>
 
-    <div v-if="$page.props.errors.message" class="alert-error">
-        {{ $page.props.errors.message }}
-    </div>
+    <CategoryModal :show="showModal" :editMode="editMode" :category="selectedCategory" :allCategories="allCategories"
+      @close="closeModal" />
 
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Hình ảnh</th>
-            <th>Tên danh mục</th>
-            <th>Danh mục cha</th>
-            <th>Số sản phẩm</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr v-for="c in categories.data" :key="c.id">
-            <td>#{{ c.id }}</td>
-            <td><img :src="c.image_url" class="product-img" /></td>
-            <td class="name-cell">{{ c.name }}</td>
-            <td>
-                <span v-if="c.parent_name" class="badge-parent">{{ c.parent_name }}</span>
-                <span v-else class="text-muted">-</span>
-            </td>
-            <td>{{ c.products_count }}</td>
-
-            <td class="table__action-cell">
-                <div class="table__actions">
-                    <button @click="openEditModal(c)" class="action-btn action-btn--edit" aria-label="Sửa">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button @click="deleteCategory(c.id)" class="action-btn action-btn--delete" aria-label="Xóa">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div v-if="categories.last_page > 1" style="display: flex; justify-content: flex-end;">
-        <ul class="pagination">
-        <li v-for="link in categories.links" :key="link.label" :class="['pagination__item', { active: link.active, disabled: !link.url }]">
-            <Link v-if="link.url" :href="link.url" class="pagination__link" preserve-scroll>
-                <span v-if="link.label.includes('Previous')">&laquo;</span>
-                <span v-else-if="link.label.includes('Next')">&raquo;</span>
-                <span v-else v-html="link.label"></span>
-            </Link>
-            <span v-else class="pagination__link">
-                <span v-if="link.label.includes('Previous')">&laquo;</span>
-                <span v-else-if="link.label.includes('Next')">&raquo;</span>
-                <span v-else v-html="link.label"></span>
-            </span>
-        </li>
-        </ul>
-    </div>
-
-  </div>
-</div>
-
-<CategoryModal 
-    :show="showModal" 
-    :editMode="editMode" 
-    :category="selectedCategory" 
-    :allCategories="allCategories"
-    @close="closeModal" 
-/>
-
-</AdminLayout>
+  </AdminLayout>
 </template>
 
 <style scoped>
@@ -184,6 +237,8 @@ const deleteCategory = (id) => {
   display: flex;
   gap: 1.5rem;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 100;
 }
 
 .stat-card {
@@ -197,6 +252,8 @@ const deleteCategory = (id) => {
   border-radius: 18px;
   border: 1px solid #e5e7eb;
   transition: 0.3s ease;
+  position: relative;
+  cursor: pointer;
 }
 
 .stat-card i {
@@ -218,6 +275,91 @@ const deleteCategory = (id) => {
   font-size: 1.6rem;
   font-weight: 700;
   color: #111827;
+}
+
+/* ================= TOOLTIP DROPDOWN ================= */
+.status-dropdown {
+  position: absolute;
+  top: calc(100% + 15px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  z-index: 100;
+  cursor: default;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.status-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-left: 1px solid #e5e7eb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.loading-text,
+.empty-text {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #6b7280;
+  padding: 10px 0;
+}
+
+.tree-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-parent {
+  padding: 10px 12px;
+  font-weight: 600;
+  color: #0f766e;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tree-parent:hover {
+  background: #f0fdfa;
+}
+
+.tree-child {
+  padding: 8px 12px 8px 30px;
+  /* Thụt vào */
+  font-weight: 500;
+  color: #4b5563;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.tree-child:hover {
+  background: #f8fafc;
+  color: #0f766e;
+}
+
+.child-icon {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin-bottom: 3px;
 }
 
 /* ===== BẢNG & LAYOUT BẢNG ===== */
@@ -267,7 +409,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   text-align: center;
   padding: 1rem 0;
   vertical-align: middle;
@@ -293,9 +436,29 @@ tbody tr:hover {
 }
 
 /* Các thuộc tính riêng của Category */
-.badge-parent { background-color: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
-.text-muted { color: #9ca3af; }
-.alert-error { background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; text-align: center; font-weight: 500; }
+.badge-parent {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #9ca3af;
+}
+
+.alert-error {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+}
 
 /* Kế thừa .action-btn từ app.css nhưng bổ sung màu Sửa/Xóa cho Admin */
 .action-btn--edit:hover {
@@ -310,47 +473,28 @@ tbody tr:hover {
 
 /* ===== BẢNG RESPONSIVE MOBILE ===== */
 @media (max-width: 768px) {
-  .product-img { margin: 0; }
+  .product-img { margin: 0; width: 50px; height: 50px; }
   .table-card { padding: 1.2rem; }
-  
-  .table-header, .header-actions {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-  }
-
+  .table-header, .header-actions { flex-direction: column; align-items: stretch; width: 100%; }
   .search-box { width: 100%; }
-  table, thead, tbody, th, td, tr {
-    display: block;
-    width: 100%;
-  }
+
+  table, thead, tbody, th, td, tr { display: block; width: 100%; }
   thead { display: none; }
 
   tbody tr {
-    background: #ffffff;
-    padding: 1.2rem;
-    border-radius: 18px;
-    margin-bottom: 1.5rem;
+    background: #ffffff; padding: 1rem; border-radius: 12px;
+    margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
   }
 
   tbody td {
-    position: relative;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0.7rem 1rem 0.7rem 110px;
-    border-bottom: 1px solid #f1f5f9;
-    text-align: right;
+    position: relative; display: flex; justify-content: space-between; align-items: center;
+    padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9; text-align: right; font-size: 0.9rem;
   }
 
   tbody td:last-child { border-bottom: none; }
-  tbody td::before {
-    position: absolute;
-    left: 1rem;
-    font-weight: 600;
-    color: #6b7280;
-  }
+
+  tbody td::before { content: attr(data-label); font-weight: 600; color: #6b7280; text-align: left; padding-right: 15px; }
 
   /* Đánh index cột theo bảng Categories (6 cột) */
   tbody td:nth-child(1)::before { content: "ID"; }
@@ -358,6 +502,11 @@ tbody tr:hover {
   tbody td:nth-child(3)::before { content: "Tên danh mục"; }
   tbody td:nth-child(4)::before { content: "Danh mục cha"; }
   tbody td:nth-child(5)::before { content: "Số sản phẩm"; }
-  tbody td:nth-child(6)::before { content: "Hành động"; }
+
+  /* Hành động */
+  tbody td:nth-child(6) { justify-content: flex-end; padding-top: 1rem; margin-top: 0.5rem; }
+  tbody td:nth-child(6)::before { display: none; }
+  
+  .table__actions { display: flex; gap: 6px; }
 }
 </style>

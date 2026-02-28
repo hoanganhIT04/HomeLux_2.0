@@ -326,31 +326,14 @@ const closeModal = () => emit('close')
 <style scoped>
 /* --- CONTAINER --- */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(3px);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(3px);
+    z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px;
 }
 
 .modal-card {
-    background: #fff;
-    width: 1100px;
-    max-width: 95vw;
-    height: auto;
-    max-height: 85vh;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    background: #fff; width: 1100px; max-width: 95vw; height: auto; max-height: 90vh; /* Cố định max-height */
+    border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    display: flex; flex-direction: column; overflow: hidden;
     animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -359,28 +342,19 @@ const closeModal = () => emit('close')
     to { transform: scale(1); opacity: 1; }
 }
 
-/* --- HEADER & FOOTER --- */
-.modal-header {
-    padding: 15px 25px;
-    border-bottom: 1px solid #f0f0f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #fff;
-}
-
+/* --- TRƯỚC: (Giữ nguyên các css PC khác) --- */
+.modal-header { padding: 15px 25px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; background: #fff; }
 .title { margin: 0; font-size: 18px; font-weight: 700; color: #0f766e; }
 .close-btn { background: none; border: none; font-size: 24px; color: #999; cursor: pointer; }
 .close-btn:hover { color: #d33; }
 
-.modal-footer {
-    padding: 15px 25px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 12px; background: #fafafa;
-}
+/* FOOOTER NẰM NGOÀI CUỘN */
+.modal-footer { padding: 15px 25px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 12px; background: #fafafa; }
 
-/* --- BODY --- */
+/* NỘI DUNG CUỘN ĐƯỢC */
 .modal-body { flex: 1; overflow-y: auto; padding: 25px; }
 
-/* --- GRID LAYOUT --- */
+/* GRID */
 .modal-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
 .col-left { display: flex; flex-direction: column; gap: 15px; }
 .col-right { background: #f8fcfb; border: 1px dashed #bce3db; border-radius: 10px; padding: 20px; height: fit-content; }
@@ -392,17 +366,12 @@ const closeModal = () => emit('close')
 .req { color: red; }
 .err { font-size: 11px; color: red; margin-top: 2px; }
 
-.input {
-    padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%; transition: 0.2s;
-}
-
+.input { padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%; transition: 0.2s; }
 .input:focus { border-color: #0f766e; outline: none; box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1); }
 .textarea { height: 100px; resize: none; }
 
 /* CHECKBOX DANH MỤC */
-.category-list {
-    height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #fff; padding: 10px; border-color: #ddd;
-}
+.category-list { height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #fff; padding: 10px; border-color: #ddd; }
 .category-list.error-border { border: 1px solid red !important; }
 .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: #333; }
 .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: #0f766e; cursor: pointer; }
@@ -420,16 +389,12 @@ const closeModal = () => emit('close')
 .placeholder i { font-size: 24px; margin-bottom: 5px; display: block; }
 .tiny-text { font-size: 12px; }
 .img-box img { width: 100%; height: 100%; object-fit: cover; }
-.btn-remove {
-    position: absolute; top: 4px; right: 4px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10;
-}
+.btn-remove { position: absolute; top: 4px; right: 4px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; }
 .badge-main { position: absolute; bottom: 0; width: 100%; background: #0f766e; color: white; font-size: 10px; text-align: center; padding: 2px 0; pointer-events: none; }
 
 /* MODEL 3D */
 .model-section { margin-top: 20px; }
-.model-box {
-    background: #fff; border: 2px dashed #ccc; border-radius: 8px; height: 70px; display: flex; align-items: center; justify-content: center; color: #666; cursor: pointer; position: relative; overflow: hidden; transition: 0.2s;
-}
+.model-box { background: #fff; border: 2px dashed #ccc; border-radius: 8px; height: 70px; display: flex; align-items: center; justify-content: center; color: #666; cursor: pointer; position: relative; overflow: hidden; transition: 0.2s; }
 .model-box:hover { border-color: #0f766e; background: #f0fdfa; }
 .model-box.has-model { height: 250px; border-style: solid; border-color: #e5e7eb; background: #f1f1f1; cursor: default; }
 .model-placeholder { display: flex; gap: 10px; align-items: center; }
@@ -437,21 +402,23 @@ const closeModal = () => emit('close')
 .model-remove { top: 8px; right: 8px; width: 28px; height: 28px; font-size: 16px; }
 
 /* BUTTONS & LỖI */
-.btn-submit {
-    background: #0f766e; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
-}
+.btn-submit { background: #0f766e; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
 .btn-submit:hover { background: #115e59; transform: translateY(-1px); }
 .btn-cancel { background: #fff; border: 1px solid #ddd; color: #555; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 .btn-cancel:hover { background: #f3f4f6; }
 
-/* Thêm style cho viền đỏ báo lỗi */
 .error-border { border-color: red !important; }
 .header-error { display: block; text-align: center; margin-bottom: 8px; font-size: 12px; }
 
-/* RESPONSIVE */
+/* RESPONSIVE NÂNG CAO */
 @media (max-width: 768px) {
-    .modal-card { width: 100%; height: 100vh; max-height: none; border-radius: 0; }
-    .modal-grid { grid-template-columns: 1fr; }
+    .modal-overlay { padding: 10px; } /* Căn viền nhỏ hơn trên mobile */
+    .modal-card { width: 100%; max-width: 100%; border-radius: 8px; max-height: 95vh; }
+    .modal-grid { grid-template-columns: 1fr; gap: 20px; }
+    .col-right { padding: 15px; }
     .img-grid { grid-template-columns: repeat(2, 1fr); }
+    .modal-body { padding: 15px; }
+    .modal-footer { padding: 15px; }
+    .row-group { flex-direction: column; } /* Nếu các input song song thì cắt xuống 1 cột */
 }
 </style>

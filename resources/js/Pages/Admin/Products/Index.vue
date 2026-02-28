@@ -53,11 +53,13 @@ const handleMouseLeaveLowStock = () => {
   showLowStockTooltip.value = false;
 }
 
-/* ================= SEARCH ================= */
+/* ================= SEARCH & LỌC ================= */
 const search = ref(props.filters.search || '')
+const filterCategory = ref(props.filters.category || '')
+const sortSold = ref(props.filters.sort_sold || '')
 
-watch(search, debounce((value) => {
-  router.get(route('admin.products.index'), { search: value }, {
+watch([search, filterCategory, sortSold], debounce(([newSearch, newCat, newSort]) => {
+  router.get(route('admin.products.index'), { search: newSearch, category: newCat, sort_sold: newSort }, {
     preserveState: true,
     replace: true,
     preserveScroll: true
@@ -127,6 +129,19 @@ const deleteProduct = (id) => {
           <h3 class="section__title"><i class="fa-solid fa-box"></i> Danh sách sản phẩm</h3>
 
           <div class="header-actions">
+            <!-- Filter Danh Mục -->
+            <select v-model="filterCategory" class="filter-select">
+              <option value="">Tất cả danh mục</option>
+              <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+            </select>
+
+            <!-- Sắp xếp Số lượng bán -->
+            <select v-model="sortSold" class="filter-select">
+              <option value="">Sắp xếp mặc định</option>
+              <option value="desc">Nhiều lượt bán nhất</option>
+              <option value="asc">Ít lượt bán nhất</option>
+            </select>
+
             <div class="search-box">
               <i class="fa-solid fa-magnifying-glass"></i>
               <input v-model="search" type="text" class="form__input" placeholder="Tìm kiếm sản phẩm..." />
@@ -372,8 +387,30 @@ const deleteProduct = (id) => {
   border-radius: 999px !important;
   width: 100%;
   border: 1px solid #e5e7eb;
-  padding: 9px 16px;
+  padding: 8px 16px;
   outline: none;
+}
+
+.search-box input:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+}
+
+.filter-select {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  outline: none;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.filter-select:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
 .search-box input:focus {
@@ -429,94 +466,44 @@ tbody tr:hover {
 
 /* ===== BẢNG RESPONSIVE MOBILE ===== */
 @media (max-width: 768px) {
-  .product-img {
-    margin: 0;
-  }
+  .product-img { margin: 0; width: 50px; height: 50px; }
+  .table-card { padding: 1.2rem; }
+  
+  .table-header, .header-actions { flex-direction: column; align-items: stretch; width: 100%; }
+  .search-box { width: 100%; }
 
-  .table-card {
-    padding: 1.2rem;
-  }
-
-  .table-header,
-  .header-actions {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-  }
-
-  .search-box {
-    width: 100%;
-  }
-
-  table,
-  thead,
-  tbody,
-  th,
-  td,
-  tr {
-    display: block;
-    width: 100%;
-  }
-
-  thead {
-    display: none;
-  }
+  table, thead, tbody, th, td, tr { display: block; width: 100%; }
+  thead { display: none; }
 
   tbody tr {
-    background: #ffffff;
-    padding: 1.2rem;
-    border-radius: 18px;
-    margin-bottom: 1.5rem;
+    background: #ffffff; padding: 1rem; border-radius: 12px;
+    margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
   }
 
   tbody td {
-    position: relative;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0.7rem 1rem 0.7rem 110px;
-    border-bottom: 1px solid #f1f5f9;
-    text-align: right;
+    position: relative; display: flex; justify-content: space-between; align-items: center;
+    padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9; text-align: right; font-size: 0.9rem;
   }
 
-  tbody td:last-child {
-    border-bottom: none;
-  }
+  tbody td:last-child { border-bottom: none; }
 
+  /* Đặt tiêu đề từ thuộc tính data-label */
   tbody td::before {
-    position: absolute;
-    left: 1rem;
-    font-weight: 600;
-    color: #6b7280;
+    content: attr(data-label); font-weight: 600; color: #6b7280; text-align: left; padding-right: 15px;
   }
 
-  tbody td:nth-child(1)::before {
-    content: "ID";
-  }
-
-  tbody td:nth-child(2)::before {
-    content: "Hình ảnh";
-  }
-
-  tbody td:nth-child(3)::before {
-    content: "Tên";
-  }
-
-  tbody td:nth-child(4)::before {
-    content: "Giá";
-  }
-
-  tbody td:nth-child(5)::before {
-    content: "Tồn kho";
-  }
-
-  tbody td:nth-child(6)::before {
-    content: "Đã bán";
-  }
-
-  tbody td:nth-child(7)::before {
-    content: "Hành động";
-  }
+  tbody td:nth-child(1)::before { content: "ID"; }
+  tbody td:nth-child(2)::before { content: "Hình ảnh"; }
+  tbody td:nth-child(3)::before { content: "Tên"; }
+  tbody td:nth-child(4)::before { content: "Giá"; }
+  tbody td:nth-child(5)::before { content: "Tồn kho"; }
+  tbody td:nth-child(6)::before { content: "Đã bán"; }
+  
+  /* Căn riêng cho nút Hành động, đẩy xuống cuối cùng */
+  tbody td:nth-child(7) { justify-content: flex-end; padding-top: 1rem; margin-top: 0.5rem; }
+  tbody td:nth-child(7)::before { display: none; } /* Ẩn chữ Hành động trên mobile */
+  
+  .table__actions { display: flex; gap: 6px; }
 }
 </style>
