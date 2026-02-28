@@ -216,7 +216,11 @@ const closeModal = () => emit('close')
 .error-border { border-color: red !important; }
 
 @media (max-width: 768px) {
-    .modal-grid { grid-template-columns: 1fr; }
+    .modal-overlay { padding: 10px; }
+    .modal-card { width: 100%; max-width: 100%; border-radius: 8px; max-height: 95vh; }
+    .modal-grid { grid-template-columns: 1fr; gap: 20px; }
     .img-box { width: 100%; height: 250px; }
+    .modal-body { padding: 15px; }
+    .modal-footer { padding: 15px; }
 }
 </style>
