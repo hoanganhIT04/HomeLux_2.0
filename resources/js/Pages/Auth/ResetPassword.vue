@@ -44,7 +44,7 @@ const submit = () => {
                 <div class="bg-[#088178] py-6 text-center">
                     <Link :href="route('home')" class="no-underline">
                         <h1 class="text-2xl font-bold tracking-wide hover:opacity-80 transition">
-                            TOY MARK
+                            Home Lux 2.0
                         </h1>
                     </Link>
                     <p class="text-white/90 mt-1">
@@ -99,7 +99,7 @@ const submit = () => {
 
                 <!-- Footer -->
                 <div class="bg-[#f6fffa] text-center py-4 text-xs text-gray-500">
-                    © {{ new Date().getFullYear() }} TOY MARK Store. All rights reserved.
+                    © {{ new Date().getFullYear() }} Home Lux 2.0
                 </div>
             </div>
         </div>
