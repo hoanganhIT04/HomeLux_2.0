@@ -33,7 +33,7 @@ const submit = () => {
                 <div class="bg-teal-600 text-white text-center py-6">
                     <Link :href="route('home')" class="no-underline">
                         <h1 class="text-2xl font-bold tracking-wide hover:opacity-80 transition">
-                            TOY MARK
+                            Home Lux 2.0
                         </h1>
                     </Link>
                     <p class="mt-1 text-sm opacity-90">Khôi phục mật khẩu</p>
@@ -94,7 +94,7 @@ const submit = () => {
 
                 <!-- Footer -->
                 <div class="bg-gray-50 text-center text-xs text-gray-500 py-3">
-                    © 2026 TOY MARK Store. All rights reserved.
+                    © 2026 Home Lux 2.0
                 </div>
             </div>
         </div>
