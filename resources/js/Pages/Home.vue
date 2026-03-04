@@ -93,12 +93,12 @@ const handleAddToCart = async (product) => {
         <section class="home section--lg">
           <div class="home__container container grid">
             <div class="home__content">
-              <span class="home__subtitle">Đồ chơi nổi bật</span>
+              <span class="home__subtitle">Nâng tầm không gian sống</span>
               <h1 class="home__title">
-                Thế giới đồ chơi <span>Vô vàn niềm vui</span>
+                Thế giới Nội thất <span>Kiến tạo không gian đẳng cấp</span>
               </h1>
               <p class="home__description">
-                Khám phá những món đồ chơi thú vị
+                Nơi mỗi góc nhà đều có câu chuyện
               </p>
               <a :href="route('shop')" class="btn">Mua ngay</a>
             </div>

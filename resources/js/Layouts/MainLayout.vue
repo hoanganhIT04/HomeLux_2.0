@@ -158,7 +158,7 @@ onUnmounted(() => {
                 <img src="/assets/img/logo_toyMark_icon-removebg.png" alt="Toy Mark Logo" class="brand__logo" />
 
                 <p class="brand__slogan">
-                    TOY MARK — A World Of Toys
+                    HOME LUX — Live in style
                 </p>
             </div>
         </section>
