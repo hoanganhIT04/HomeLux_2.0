@@ -43,7 +43,7 @@
                             color:#465b52;">
                             Xin chào <strong>{{ $order->receiver_name ?? $order->user->name }}</strong>,<br><br>
 
-                            Cảm ơn bạn đã đặt hàng tại <strong>TOY MARK</strong>.
+                            Cảm ơn bạn đã đặt hàng tại <strong>HOME LUX</strong>.
                             Đơn hàng của bạn đã được ghi nhận với thông tin sau:
                         </td>
                     </tr>
@@ -166,7 +166,7 @@
                     <tr>
                         <td align="center" style="padding:20px;background:#088178;
                    color:#fff;font-size:14px;">
-                            &copy; {{ date('Y') }} TOY MARK Store.
+                            &copy; {{ date('Y') }} HOME LUX Store.
                         </td>
                     </tr>
 

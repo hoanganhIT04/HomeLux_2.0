@@ -44,9 +44,9 @@ const submitSearch = () => {
 }
 
 const performSearch = (value) => {
-    router.get('/shop', 
+    router.get('/shop',
         { search: value }, // Gửi tham số search lên server
-        { 
+        {
             preserveState: true,  // Giữ trạng thái con trỏ chuột trong ô input
             replace: true,        // Không tạo thêm lịch sử duyệt web rác
             preserveScroll: true  // Giữ nguyên vị trí cuộn trang
@@ -242,7 +242,7 @@ onUnmounted(() => {
                 </div>
             </div>
             <div class="footer__bottom">
-                <p class="copyright">&copy; 2026 TOY MARK. Đã đăng ký bản quyền</p>
+                <p class="copyright">&copy; 2026 HOME LUX. Đã đăng ký bản quyền</p>
                 <span class="designer">Thiết kế bởi HAGAH</span>
             </div>
         </footer>

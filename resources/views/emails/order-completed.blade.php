@@ -43,7 +43,7 @@
                             color:#465b52;">
                             Xin chào <strong>{{ $order->receiver_name ?? $order->user->name }}</strong>,<br><br>
 
-                            Đơn hàng của bạn tại <strong>TOY MARK</strong> đã được giao thành công.
+                            Đơn hàng của bạn tại <strong>HOME LUX</strong> đã được giao thành công.
                             Cảm ơn bạn đã tin tưởng và mua sắm cùng chúng tôi.
                         </td>
                     </tr>
