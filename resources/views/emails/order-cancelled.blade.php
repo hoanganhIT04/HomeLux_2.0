@@ -20,7 +20,7 @@
                             <h1 style="margin:0;font-family:'Segoe UI';
            font-size:28px;font-weight:700;
            color:#dc3545;letter-spacing:2px;">
-                                TOY MARK
+                                HOME LUX
                             </h1>
                         </td>
                     </tr>
@@ -43,7 +43,7 @@
 
                             Xin chào <strong>{{ $order->receiver_name ?? $order->user->name }}</strong>,<br><br>
 
-                            Đơn hàng của bạn tại <strong>TOY MARK</strong> đã được hủy.
+                            Đơn hàng của bạn tại <strong>HOME LUX</strong> đã được hủy.
 
                             Nếu bạn đã thanh toán trước đó, tiền sẽ được hoàn lại theo phương thức thanh toán ban đầu
                             (trong vòng 3-5 ngày làm việc).
@@ -75,7 +75,7 @@
                     <tr>
                         <td align="center" style="padding:20px;background:#dc3545;
     color:#fff;font-size:14px;">
-                            &copy; {{ date('Y') }} TOY MARK Store.
+                            &copy; {{ date('Y') }} HOME LUX Store.
                         </td>
                     </tr>
 
