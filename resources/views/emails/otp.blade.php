@@ -61,7 +61,7 @@
                             <a href="{{ url('/') }}" target="_blank" style="text-decoration: none;">
                                 <h1
                                     style="margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 28px; font-weight: 700; color: #088178; text-transform: uppercase; letter-spacing: 2px;">
-                                    TOY MARK
+                                    HOME LUX
                                 </h1>
                             </a>
                         </td>
@@ -81,7 +81,7 @@
                             <p
                                 style="margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 15px; line-height: 24px; color: #465b52;">
                                 Xin chào, <br><br>
-                                Cảm ơn bạn đã đăng ký tài khoản tại <strong>TOY MARK</strong>. Để hoàn tất quá trình xác
+                                Cảm ơn bạn đã đăng ký tài khoản tại <strong>HOME LUX</strong>. Để hoàn tất quá trình xác
                                 thực, vui lòng nhập mã OTP dưới đây:
                             </p>
                         </td>
@@ -117,7 +117,7 @@
                         <td align="center" style="padding: 20px; background-color: #088178;">
                             <p
                                 style="margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 14px; color: #ffffff;">
-                                &copy; {{ date('Y') }} TOY MARK Store. All rights reserved.
+                                &copy; {{ date('Y') }} HOME LUX Store. All rights reserved.
                             </p>
                         </td>
                     </tr>
