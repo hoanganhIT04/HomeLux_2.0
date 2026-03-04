@@ -21,7 +21,7 @@
                             <h1 style="margin:0;font-family:'Segoe UI';
                        font-size:28px;font-weight:700;
                        color:#088178;letter-spacing:2px;">
-                                TOY MARK
+                                HOME LUX
                             </h1>
                         </td>
                     </tr>
@@ -43,7 +43,7 @@
                             color:#465b52;">
                             Xin chào <strong>{{ $order->receiver_name ?? $order->user->name }}</strong>,<br><br>
 
-                            Đơn hàng của bạn tại <strong>TOY MARK</strong> đã được bàn giao cho đơn vị vận chuyển và
+                            Đơn hàng của bạn tại <strong>HOME LUX</strong> đã được bàn giao cho đơn vị vận chuyển và
                             đang trên đường giao tới bạn.
                             Vui lòng giữ điện thoại để nhận hàng.
                         </td>
@@ -154,7 +154,7 @@
                     <tr>
                         <td align="center" style="padding:20px;background:#088178;
                    color:#fff;font-size:14px;">
-                            &copy; {{ date('Y') }} TOY MARK Store.
+                            &copy; {{ date('Y') }} HOME LUX Store.
                         </td>
                     </tr>
 
