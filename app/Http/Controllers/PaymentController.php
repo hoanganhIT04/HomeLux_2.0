@@ -28,16 +28,16 @@ class PaymentController extends Controller
 
         $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
 
-        $partnerCode = env('MOMO_PARTNER_CODE');
-        $accessKey   = env('MOMO_ACCESS_KEY');
-        $secretKey   = env('MOMO_SECRET_KEY');
+        $partnerCode = config('services.momo.partner_code');
+        $accessKey   = config('services.momo.access_key');
+        $secretKey   = config('services.momo.secret_key');
 
         $amount = (string) $checkoutData['total'];
         $orderId = 'MOMO-' . strtoupper(Str::random(10)); // ID tạm
         $orderInfo = "Thanh toán đơn hàng";
 
-        $redirectUrl = env('MOMO_REDIRECT_URL');
-        $ipnUrl      = env('MOMO_IPN_URL');
+        $redirectUrl = config('services.momo.redirect_url');
+        $ipnUrl      = config('services.momo.ipn_url');
         $requestId   = time();
         $requestType = "captureWallet";
         $extraData   = "";
