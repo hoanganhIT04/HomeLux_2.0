@@ -15,7 +15,7 @@ const logout = () => {
         <div class="sidebar-top">
             <div class="sidebar-logo">
                 <img src="/assets/img/logo-removebg-toymark-2.png" />
-                <span>ADMIN PANEL</span>
+
             </div>
 
             <!-- MENU -->
