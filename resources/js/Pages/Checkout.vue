@@ -491,13 +491,13 @@ onMounted(async () => {
                                 </label>
                             </div>
 
-                            <div class="payment__option">
+                            <!-- <div class="payment__option">
                                 <input type="radio" id="momo" value="momo" v-model="form.payment_method" />
                                 <label for="momo">
                                     <i class="fa-solid fa-wallet"></i>
                                     Thanh toán MoMo
                                 </label>
-                            </div>
+                            </div> -->
                         </div>
 
                         <!-- STEP 2: PLACE ORDER -->
