@@ -28,7 +28,7 @@ const submit = () => {
                 <div class="register">
                     <h3 class="section__title" style="text-align: center;">Tạo tài khoản</h3>
 
-                    <form @submit.prevent="submit" class="form grid">
+                    <form @submit.prevent="submit" class="form grid" novalidate>
                         <div>
                             <input type="text" placeholder="Họ và tên" class="form__input" v-model="form.name" required
                                 style="width: 100%;" />
@@ -37,19 +37,19 @@ const submit = () => {
 
                         <div class="mt-4">
                             <input type="email" placeholder="Địa chỉ Email" class="form__input" v-model="form.email"
-                                required style="width: 100%;" />
+                                style="width: 100%;" />
                             <InputError class="mt-2" :message="form.errors.email" />
                         </div>
 
                         <div class="mt-4">
                             <input type="password" placeholder="Mật khẩu" class="form__input" v-model="form.password"
-                                required style="width: 100%;" />
+                                style="width: 100%;" />
                             <InputError class="mt-2" :message="form.errors.password" />
                         </div>
 
                         <div class="mt-4">
                             <input type="password" placeholder="Nhập lại mật khẩu" class="form__input"
-                                v-model="form.password_confirmation" required style="width: 100%;" />
+                                v-model="form.password_confirmation" style="width: 100%;" />
                             <InputError class="mt-2" :message="form.errors.password_confirmation" />
                         </div>
 
@@ -62,16 +62,13 @@ const submit = () => {
                             </button>
                         </div>
                         <div class="mt-4 text-center">
-                            <Link
-                                :href="route('login')"
-                                class="
+                            <Link :href="route('login')" class="
                                     inline-flex items-center gap-1
                                     text-sm font-medium text-teal-600 no-underline
                                     transition-all duration-200 ease-out
                                     hover:text-teal-700
                                     hover:gap-2
-                                "
-                            >
+                                ">
                                 <span class="transition-transform duration-200 hover:-translate-x-1">
                                     ←
                                 </span>

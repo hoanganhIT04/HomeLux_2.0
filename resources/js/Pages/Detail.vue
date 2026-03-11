@@ -68,7 +68,7 @@ const toggleWishlist = async () => {
     })
 
     wishlisted.value = res.data.wishlisted
-    
+
     window.dispatchEvent(new Event('wishlist-updated'))
 
   } catch (err) {
@@ -122,7 +122,7 @@ const handleAddRelatedToCart = async (product) => {
 const canReview = ref(false)
 const orderItemId = ref(null)
 const reviews = ref([])
-const activeTab = ref('form') 
+const activeTab = ref('form')
 const currentPage = ref(1)
 const perPage = 3
 const reviewContent = ref('')
@@ -286,14 +286,9 @@ const resetHover = () => {
             <p class="short__description">{{ product.description }}</p>
             <div class="detail__rating">
               <div class="detail__stars">
-                <i 
-                  v-for="i in 5" 
-                  :key="i"
-                  class="fi detail__star"
-                  :class="i <= Math.round(product.avg_rating) 
-                    ? 'fi-rs-star active' 
-                    : 'fi-rs-star-empty'"
-                ></i>
+                <i v-for="i in 5" :key="i" class="fi detail__star" :class="i <= Math.round(product.avg_rating)
+                  ? 'fi-rs-star active'
+                  : 'fi-rs-star-empty'"></i>
               </div>
 
               <span class="detail__rating-text">
@@ -355,19 +350,11 @@ const resetHover = () => {
 
         <!-- TAB NAV -->
         <div class="review__tabs">
-          <button
-            class="review__tab"
-            :class="{ active: activeTab === 'form' }"
-            @click="activeTab = 'form'"
-          >
+          <button class="review__tab" :class="{ active: activeTab === 'form' }" @click="activeTab = 'form'">
             Đánh giá sản phẩm
           </button>
 
-          <button
-            class="review__tab"
-            :class="{ active: activeTab === 'list' }"
-            @click="activeTab = 'list'"
-          >
+          <button class="review__tab" :class="{ active: activeTab === 'list' }" @click="activeTab = 'list'">
             Xem đánh giá
           </button>
         </div>
@@ -378,32 +365,16 @@ const resetHover = () => {
           <h4 class="review__form-title">Đánh giá sản phẩm</h4>
 
           <div class="rate__product">
-            <i
-              v-for="i in 5"
-              :key="i"
-              class="fi fi-rs-star"
-              :class="{
-                active: i <= selectedRating,
-                hovered: i <= hoverRating
-              }"
-              @click="setRating(i)"
-              @mouseover="setHover(i)"
-              @mouseleave="resetHover"
-            ></i>
+            <i v-for="i in 5" :key="i" class="fi fi-rs-star" :class="{
+              active: i <= selectedRating,
+              hovered: i <= hoverRating
+            }" @click="setRating(i)" @mouseover="setHover(i)" @mouseleave="resetHover"></i>
           </div>
           <form class="form grid">
-            <textarea
-              class="form__input textarea"
-              placeholder="Viết nhận xét"
-              v-model="reviewContent"
-            ></textarea>
+            <textarea class="form__input textarea" placeholder="Viết nhận xét" v-model="reviewContent"></textarea>
 
             <div class="form__btn">
-              <button 
-                class="review-submit-btn"
-                :disabled="!canReview"
-                @click.prevent="submitReview"
-              >
+              <button class="review-submit-btn" :disabled="!canReview" @click.prevent="submitReview">
                 Gửi đánh giá
               </button>
             </div>
@@ -413,23 +384,13 @@ const resetHover = () => {
         <!-- ================= REVIEW LIST ================= -->
         <div v-show="activeTab === 'list'" class="reviews__wrapper">
           <!-- Nếu KHÔNG có đánh giá -->
-          <div 
-            v-if="!paginatedReviews.length"
-            class="review__empty"
-          >
+          <div v-if="!paginatedReviews.length" class="review__empty">
             <i class="fa-regular fa-star"></i>
             <p>Chưa có đánh giá nào</p>
           </div>
           <!-- Nếu có đánh giá -->
-          <div 
-            v-else 
-            class="reviews__container grid"
-          >
-            <div 
-              class="review__single"
-              v-for="review in paginatedReviews"
-              :key="review.id"
-            >
+          <div v-else class="reviews__container grid">
+            <div class="review__single" v-for="review in paginatedReviews" :key="review.id">
               <!-- <div>
                 <img :src="review.avatar" class="review__img" />
                 <h4 class="review__title">{{ review.user }}</h4>
@@ -438,14 +399,9 @@ const resetHover = () => {
               <div class="review__data">
                 <h4 class="review__title">{{ review.user }}</h4>
                 <div class="review__rating">
-                  <i 
-                    v-for="i in 5" 
-                    :key="i"
-                    class="fi"
-                    :class="i <= review.rating 
-                      ? 'fi-rs-star active' 
-                      : 'fi-rs-star-empty'"
-                  ></i>
+                  <i v-for="i in 5" :key="i" class="fi" :class="i <= review.rating
+                    ? 'fi-rs-star active'
+                    : 'fi-rs-star-empty'"></i>
                   <span class="detail__rating-text">
                     {{ Number(review.rating || 0).toFixed(1) }} / 5
                   </span>
@@ -463,43 +419,27 @@ const resetHover = () => {
           </div>
 
           <!-- PAGINATION -->
-          <div 
-            v-if="totalPages > 1"
-            class="review__pagination"
-          >
+          <div v-if="totalPages > 1" class="review__pagination">
 
-            <button 
-              class="review-page-btn"
-              @click="changePage(currentPage - 1)"
-              :disabled="currentPage === 1"
-            >
-              <<
-            </button>
+            <button class="review-page-btn" @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
+              << </button>
 
-            <button
-              v-for="page in totalPages"
-              :key="page"
-              class="review-page-btn"
-              :class="{ active: currentPage === page }"
-              @click="changePage(page)"
-            >
-              {{ page }}
-            </button>
+                <button v-for="page in totalPages" :key="page" class="review-page-btn"
+                  :class="{ active: currentPage === page }" @click="changePage(page)">
+                  {{ page }}
+                </button>
 
-            <button 
-              class="review-page-btn"
-              @click="changePage(currentPage + 1)"
-              :disabled="currentPage === totalPages"
-            >
-              >>
-            </button>
+                <button class="review-page-btn" @click="changePage(currentPage + 1)"
+                  :disabled="currentPage === totalPages">
+                  >>
+                </button>
 
           </div>
         </div>
       </section>
 
       <!--=============== RELATED PRODUCTS ===============-->
-      <section v-if="relatedProducts.length" class="products container section--lg">
+      <!-- <section v-if="relatedProducts.length" class="products container section--lg">
         <h3 class="section__title">
           <span>Sản phẩm</span> liên quan
         </h3>
@@ -562,7 +502,7 @@ const resetHover = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> -->
     </main>
   </MainLayout>
 </template>
