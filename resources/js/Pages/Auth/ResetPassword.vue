@@ -53,7 +53,7 @@ const submit = () => {
                 </div>
 
                 <!-- Body -->
-                <form @submit.prevent="submit" class="p-6 space-y-4">
+                <form @submit.prevent="submit" class="p-6 space-y-4" novalidate>
                     <div class="text-sm text-gray-600">
                         Vui lòng nhập mật khẩu mới cho tài khoản của bạn.
                     </div>
@@ -73,7 +73,7 @@ const submit = () => {
                         <InputLabel for="password" value="Mật khẩu mới" />
 
                         <TextInput id="password" type="password" class="mt-1 block w-full" v-model="form.password"
-                            required autocomplete="new-password" />
+                            autocomplete="new-password" />
 
                         <InputError class="mt-2" :message="form.errors.password" />
                     </div>
@@ -83,7 +83,7 @@ const submit = () => {
                         <InputLabel for="password_confirmation" value="Xác nhận mật khẩu" />
 
                         <TextInput id="password_confirmation" type="password" class="mt-1 block w-full"
-                            v-model="form.password_confirmation" required autocomplete="new-password" />
+                            v-model="form.password_confirmation" autocomplete="new-password" />
 
                         <InputError class="mt-2" :message="form.errors.password_confirmation" />
                     </div>

@@ -235,31 +235,6 @@ const saveAddress = () => {
 
 
 <template>
-  <!-- Logout Confirm Modal -->
-  <div v-if="showLogoutModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">
-        Xác nhận đăng xuất
-      </h2>
-
-      <p class="text-gray-600 mb-6">
-        Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?
-      </p>
-
-      <div class="flex justify-end gap-3">
-        <button @click="showLogoutModal = false"
-          class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100">
-          Hủy
-        </button>
-
-        <button @click="logout" class="px-4 py-2 rounded-lg text-white bg-[#088179] hover:bg-[#066f68] transition">
-          Đăng xuất
-        </button>
-
-      </div>
-    </div>
-  </div>
-
 
   <MainLayout>
     <main class="main">
@@ -285,23 +260,23 @@ const saveAddress = () => {
               <i class="fi fi-rs-shopping-bag"></i> Đơn hàng
             </p>
 
-            <p class="account__tab" :class="{ 'active-tab': activeTab === 'update-profile' }"
+            <!-- <p class="account__tab" :class="{ 'active-tab': activeTab === 'update-profile' }"
               @click="changeTab('update-profile')">
               <i class="fi fi-rs-user"></i> Cập nhật hồ sơ
-            </p>
+            </p> -->
 
             <p class="account__tab" :class="{ 'active-tab': activeTab === 'address' }" @click="changeTab('address')">
               <i class="fi fi-rs-marker"></i> Địa chỉ của tôi
             </p>
 
-            <p class="account__tab" :class="{ 'active-tab': activeTab === 'change-password' }"
+            <!-- <p class="account__tab" :class="{ 'active-tab': activeTab === 'change-password' }"
               @click="changeTab('change-password')">
               <i class="fi fi-rs-settings-sliders"></i> Đổi mật khẩu
-            </p>
+            </p> -->
 
-            <p class="account__tab" @click="showLogoutModal = true">
+            <!-- <p class="account__tab" @click="showLogoutModal = true">
               <i class="fi fi-rs-exit"></i> Đăng xuất
-            </p>
+            </p> -->
 
           </div>
           <div class="tabs__content">
