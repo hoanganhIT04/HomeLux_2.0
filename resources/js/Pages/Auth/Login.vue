@@ -37,24 +37,21 @@ const submit = () => {
                 <div class="login">
                     <h3 class="section__title" style="text-align: center;">Đăng nhập</h3>
 
-                    <form @submit.prevent="submit" class="form grid">
+                    <form @submit.prevent="submit" class="form grid" novalidate>
                         <div>
                             <input type="email" placeholder="Địa chỉ Email" class="form__input" v-model="form.email"
-                                required style="width: 100%;" />
+                                style="width: 100%;" />
                             <InputError class="mt-2" :message="form.errors.email" />
                         </div>
 
                         <div class="mt-4">
                             <input type="password" placeholder="Mật khẩu" class="form__input" v-model="form.password"
-                                required style="width: 100%;" />
+                                style="width: 100%;" />
                             <InputError class="mt-2" :message="form.errors.password" />
                         </div>
 
                         <div class="mt-4 flex justify-end">
-                            <Link
-                                v-if="canResetPassword"
-                                :href="route('password.request')"
-                                class="
+                            <Link v-if="canResetPassword" :href="route('password.request')" class="
                                     relative text-sm font-medium text-gray-600 no-underline
                                     transition-all duration-200
                                     hover:text-teal-600
@@ -62,8 +59,7 @@ const submit = () => {
                                     after:h-[1.5px] after:w-0 after:bg-teal-600
                                     after:transition-all after:duration-200
                                     hover:after:w-full
-                                "
-                            >
+                                ">
                                 Quên mật khẩu?
                             </Link>
                         </div>
@@ -74,16 +70,14 @@ const submit = () => {
                         </div>
 
                         <div class="mt-4">
-                            <p>Bạn chưa có tài khoản? <Link :href="route('register')"
-                                class="
+                            <p>Bạn chưa có tài khoản? <Link :href="route('register')" class="
                                     relative font-medium text-gray-600 no-underline
                                     transition-all duration-200
                                     hover:text-teal-600
                                     after:absolute after:left-0 after:-bottom-0.5
                                     after:h-[1.5px] after:w-0 after:bg-teal-600
                                     after:transition-all after:duration-200
-                                    hover:after:w-full"
-                                    style="color: var(--first-color);">
+                                    hover:after:w-full" style="color: var(--first-color);">
                                     Đăng ký ngay
                                 </Link>
                             </p>
