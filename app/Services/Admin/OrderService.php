@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderDeliveringMail;
 use App\Mail\OrderCompletedMail;
 use App\Mail\OrderCancelledMail;
+use Illuminate\Support\Facades\DB;
+use App\Models\Product;
 
 class OrderService
 {
@@ -16,13 +18,39 @@ class OrderService
      */
     public function updateOrderStatus(Order $order, string $newStatus): void
     {
-        $oldStatus = $order->status;
+        DB::transaction(function () use ($order, $newStatus) {
 
-        $this->validateStateTransition($oldStatus, $newStatus);
+            $oldStatus = $order->status;
 
-        $order->update(['status' => $newStatus]);
+            $this->validateStateTransition($oldStatus, $newStatus);
 
-        $this->dispatchStatusEmail($order, $oldStatus, $newStatus);
+            //TRỪ TỒN KHO KHI CHUYỂN SANG DELIVERING
+            if ($newStatus === 'delivering' && $oldStatus !== 'delivering') {
+
+                $order->load('items');
+
+                foreach ($order->items as $item) {
+
+                    $product = Product::lockForUpdate()->find($item->product_id);
+
+                    if (!$product) {
+                        throw new \Exception("Sản phẩm không tồn tại.");
+                    }
+
+                    if ($product->quantity < $item->quantity) {
+                        throw new \Exception("Sản phẩm {$product->name} không đủ tồn kho.");
+                    }
+
+                    $product->decrement('quantity', $item->quantity);
+                }
+            }
+
+            $order->update([
+                'status' => $newStatus
+            ]);
+
+            $this->dispatchStatusEmail($order, $oldStatus, $newStatus);
+        });
     }
 
     /**

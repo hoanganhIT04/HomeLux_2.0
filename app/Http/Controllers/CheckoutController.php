@@ -111,7 +111,7 @@ class CheckoutController extends Controller
                         throw new \Exception("Sản phẩm {$product->name} không đủ tồn kho.");
                     }
 
-                    // 🔥 TẠO ORDER ITEM
+                    // TẠO ORDER ITEM
                     OrderItem::create([
                         'order_id'   => $order->id,
                         'product_id' => $product->id,
@@ -119,17 +119,17 @@ class CheckoutController extends Controller
                         'quantity'   => $item->quantity,
                     ]);
 
-                    // 🔥 TRỪ TỒN KHO
-                    $product->decrement('quantity', $item->quantity);
+                    //TRỪ TỒN KHO
+                    // $product->decrement('quantity', $item->quantity);
                 }
 
-                // 🔥 XOÁ GIỎ
+                // XOÁ GIỎ
                 CartItem::where('user_id', $user->id)->delete();
 
                 return $order;
             });
 
-            // 🔥 LOAD RELATION TRƯỚC KHI GỬI MAIL
+            // LOAD RELATION TRƯỚC KHI GỬI MAIL
             $order->load([
                 'user',
                 'items.product'
