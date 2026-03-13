@@ -37,14 +37,36 @@ class CartController extends Controller
 
         $product = Product::findOrFail($productId);
 
+        // ❌ Chặn nếu hết hàng
+        if ($product->quantity <= 0) {
+            return response()->json([
+                'message' => 'Sản phẩm đã hết hàng'
+            ], 400);
+        }
+
         // Nếu sản phẩm đã tồn tại trong giỏ → tăng số lượng
         $cartItem = CartItem::where('user_id', $userId)
             ->where('product_id', $productId)
             ->first();
 
         if ($cartItem) {
+
+            $newQty = $cartItem->quantity + $qty;
+
+            if ($newQty > $product->quantity) {
+                return response()->json([
+                    'message' => 'Số lượng vượt quá tồn kho'
+                ], 400);
+            }
+
             $cartItem->increment('quantity', $qty);
         } else {
+            if ($qty > $product->quantity) {
+                return response()->json([
+                    'message' => 'Số lượng vượt quá tồn kho'
+                ], 400);
+            }
+
             CartItem::create([
                 'user_id'    => $userId,
                 'product_id' => $productId,

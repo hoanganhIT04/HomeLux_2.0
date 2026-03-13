@@ -134,7 +134,10 @@ const handleAddToCart = async (product) => {
                                             <i class="fi fi-rs-shopping-bag-add"></i>
                                         </a> -->
                                         <button type="button" class="action-btn action-btn--cart"
-                                            aria-label="Thêm sản phẩm vào giỏ hàng" data-tooltip="Thêm vào giỏ hàng"
+                                            :class="{ 'action-btn--disabled': item.product.quantity <= 0 }"
+                                            :disabled="item.product.quantity <= 0"
+                                            aria-label="Thêm sản phẩm vào giỏ hàng"
+                                            :data-tooltip="item.product.quantity > 0 ? 'Thêm vào giỏ hàng' : 'Sản phẩm đã hết hàng'"
                                             @click="handleAddToCart({ id: item.product_id })">
                                             <i class="fi fi-rs-shopping-bag-add"></i>
                                         </button>
