@@ -591,6 +591,11 @@
   /* nền xanh nhạt */
 }
 
+.action-btn--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .action__btn.active i,
 .action__btn.active i::before {
   color: #2fb4d9;
