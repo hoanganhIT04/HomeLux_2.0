@@ -136,11 +136,11 @@ const deleteProduct = (id) => {
             </select>
 
             <!-- Sắp xếp Số lượng bán -->
-            <select v-model="sortSold" class="filter-select">
+            <!-- <select v-model="sortSold" class="filter-select">
               <option value="">Sắp xếp mặc định</option>
               <option value="desc">Nhiều lượt bán nhất</option>
               <option value="asc">Ít lượt bán nhất</option>
-            </select>
+            </select> -->
 
             <div class="search-box">
               <i class="fa-solid fa-magnifying-glass"></i>
@@ -466,44 +466,114 @@ tbody tr:hover {
 
 /* ===== BẢNG RESPONSIVE MOBILE ===== */
 @media (max-width: 768px) {
-  .product-img { margin: 0; width: 50px; height: 50px; }
-  .table-card { padding: 1.2rem; }
-  
-  .table-header, .header-actions { flex-direction: column; align-items: stretch; width: 100%; }
-  .search-box { width: 100%; }
+  .product-img {
+    margin: 0;
+    width: 50px;
+    height: 50px;
+  }
 
-  table, thead, tbody, th, td, tr { display: block; width: 100%; }
-  thead { display: none; }
+  .table-card {
+    padding: 1.2rem;
+  }
+
+  .table-header,
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
 
   tbody tr {
-    background: #ffffff; padding: 1rem; border-radius: 12px;
-    margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
   }
 
   tbody td {
-    position: relative; display: flex; justify-content: space-between; align-items: center;
-    padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9; text-align: right; font-size: 0.9rem;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: right;
+    font-size: 0.9rem;
   }
 
-  tbody td:last-child { border-bottom: none; }
+  tbody td:last-child {
+    border-bottom: none;
+  }
 
   /* Đặt tiêu đề từ thuộc tính data-label */
   tbody td::before {
-    content: attr(data-label); font-weight: 600; color: #6b7280; text-align: left; padding-right: 15px;
+    content: attr(data-label);
+    font-weight: 600;
+    color: #6b7280;
+    text-align: left;
+    padding-right: 15px;
   }
 
-  tbody td:nth-child(1)::before { content: "ID"; }
-  tbody td:nth-child(2)::before { content: "Hình ảnh"; }
-  tbody td:nth-child(3)::before { content: "Tên"; }
-  tbody td:nth-child(4)::before { content: "Giá"; }
-  tbody td:nth-child(5)::before { content: "Tồn kho"; }
-  tbody td:nth-child(6)::before { content: "Đã bán"; }
-  
+  tbody td:nth-child(1)::before {
+    content: "ID";
+  }
+
+  tbody td:nth-child(2)::before {
+    content: "Hình ảnh";
+  }
+
+  tbody td:nth-child(3)::before {
+    content: "Tên";
+  }
+
+  tbody td:nth-child(4)::before {
+    content: "Giá";
+  }
+
+  tbody td:nth-child(5)::before {
+    content: "Tồn kho";
+  }
+
+  tbody td:nth-child(6)::before {
+    content: "Đã bán";
+  }
+
   /* Căn riêng cho nút Hành động, đẩy xuống cuối cùng */
-  tbody td:nth-child(7) { justify-content: flex-end; padding-top: 1rem; margin-top: 0.5rem; }
-  tbody td:nth-child(7)::before { display: none; } /* Ẩn chữ Hành động trên mobile */
-  
-  .table__actions { display: flex; gap: 6px; }
+  tbody td:nth-child(7) {
+    justify-content: flex-end;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  tbody td:nth-child(7)::before {
+    display: none;
+  }
+
+  /* Ẩn chữ Hành động trên mobile */
+
+  .table__actions {
+    display: flex;
+    gap: 6px;
+  }
 }
 </style>
