@@ -93,7 +93,13 @@ const getPaymentMethodLabel = (method) => {
 }
 
 const isPaid = computed(() => {
-    return props.order.payment_method === 'momo'
+    if (props.order.payment_method === 'momo') return true
+
+    if (props.order.payment_method === 'cod' && props.order.status === 'completed') {
+        return true
+    }
+
+    return false
 })
 
 </script>

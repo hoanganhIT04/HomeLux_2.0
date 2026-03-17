@@ -37,7 +37,7 @@ class CartController extends Controller
 
         $product = Product::findOrFail($productId);
 
-        // ❌ Chặn nếu hết hàng
+        // Chặn nếu hết hàng
         if ($product->quantity <= 0) {
             return response()->json([
                 'message' => 'Sản phẩm đã hết hàng'
